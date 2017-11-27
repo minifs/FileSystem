@@ -1,7 +1,7 @@
 # Mini File System - team 8  
-Mini File System is a easy way to simply simulate a file system on Linix OS.
+Mini File System is a easy way to simply implement file system on Linux OS.
 
-# Development..
+# Development  
 ## Environment Requirement  
 - Ubuntu 16.04  
 
@@ -12,4 +12,4 @@ Mini File System is a easy way to simply simulate a file system on Linix OS.
 ## Build  
 
 ## Test  
-
+Using `gtest`  
