@@ -25,6 +25,14 @@ TEST(write_block, errorcode)
 	ASSERT_EQ(4, write_block(&block_ID, (void *)"TEST", 4));
 }
 
+TEST(modify_block, errorcode)
+{
+	ASSERT_EQ(0, load_block("./filesystem.txt"));
+	int block_ID = 1;
+	ASSERT_EQ(10, modify_block(block_ID, (void *)"new hihihi", 10));
+	ASSERT_EQ(-2, modify_block(7890, (void *)"NONONO", 6));
+}
+
 int main(int argc, char **argv)
 {
 	testing::InitGoogleTest(&argc, argv);
