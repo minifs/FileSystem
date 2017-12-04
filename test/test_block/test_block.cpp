@@ -4,16 +4,26 @@
 
 TEST(create_block, errorcode)
 {
-	ASSERT_EQ(4096, create_block("./filesystem.txt", 5));
+	ASSERT_EQ(4096, create_block("./filesystem.txt"));
 }
 
 TEST(load_block, errorcode)
 {
 	ASSERT_EQ(0, load_block("./filesystem.txt"));
 	ASSERT_EQ(-1, load_block("./aaaa.txt"));
+	file_state = 1;
 	ASSERT_EQ(-4, load_block("./bug_filesystem.txt"));
 }
 
+TEST(write_block, errorcode)
+{
+	ASSERT_EQ(4096, create_block("./filesystem.txt"));
+	int block_ID;
+	ASSERT_EQ(6, write_block(&block_ID, (void *)"hihihi", 6));
+	ASSERT_EQ(19, write_block(&block_ID, (void *)"Yes it can write it", 19));
+	ASSERT_EQ(8, write_block(&block_ID, (void *)"Third on", 8));
+	ASSERT_EQ(4, write_block(&block_ID, (void *)"TEST", 4));
+}
 
 int main(int argc, char **argv)
 {
