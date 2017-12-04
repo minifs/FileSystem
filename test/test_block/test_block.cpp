@@ -31,7 +31,23 @@ TEST(modify_block, errorcode)
 	int block_ID = 1;
 	ASSERT_EQ(10, modify_block(block_ID, (void *)"new hihihi", 10));
 	ASSERT_EQ(-2, modify_block(7890, (void *)"NONONO", 6));
+	ASSERT_EQ(-3, modify_block(-8, (void *)"haha no modify_block", 19));
 }
+
+TEST(read_block, errorcode)
+{
+	ASSERT_EQ(0, load_block("./filesystem.txt"));
+	int block_ID = 2;
+	char output[1024] = {0};
+	ASSERT_EQ(1024, read_block(block_ID, (void *)output));
+        printf("\n\nread block id %d = %s\n\n", block_ID, output);
+
+	ASSERT_EQ(-4, read_block(10, (void *)output));
+	printf("\n\nread block id %d = %s\n\n", block_ID, output);
+
+	ASSERT_EQ(-2, read_block(8998, (void *)output));
+	ASSERT_EQ(-3, read_block(-2, (void *)output));
+}	
 
 int main(int argc, char **argv)
 {

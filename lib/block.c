@@ -115,6 +115,7 @@ int modify_block(const int block_ID, void *block, int block_input_length){
 			}
 			byte_written = BLOCK_SIZE;
 		}
+		close(file_state);
 	}else{
 		return -1;
 	}
@@ -179,5 +180,36 @@ int write_block(int *block_ID, void *block, int block_input_length)
 
 int read_block(const int block_ID, void *block)
 {
-	return 0;
+	int byte_read = 0;
+
+	DEBUG("fil_system_path = %s\n", file_system_path);
+	if(file_state > 0){
+		if((file_state = open(file_system_path, O_RDWR)) < 0){
+			LOG_WARN("File system %s does not exist, please call create_block first\n", file_system_path);
+			return -1;
+		}
+		
+		if(block_ID >= BLOCK_SIZE){
+			LOG_WARN("Invalid block_ID\n");
+			return -2;
+		}
+
+		if(lseek(file_state, block_ID * BLOCK_SIZE, SEEK_SET) < 0){
+			LOG_WARN("lseek fail, detail:  %s\n", strerror(errno));
+		       	return -3;
+		}
+		char tmp[BLOCK_SIZE] = {0};
+		if((byte_read = read(file_state, tmp, BLOCK_SIZE)) != BLOCK_SIZE){
+			LOG_WARN("Fail to read: %s\n", strerror(errno));
+			return -4;
+		}
+
+		memcpy(block, tmp, BLOCK_SIZE);
+
+		close(file_state);
+	}else{
+		return -1;
+	}
+
+	return byte_read;
 }
