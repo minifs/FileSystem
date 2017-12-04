@@ -7,10 +7,18 @@ TEST(create_block, errorcode)
 	ASSERT_EQ(4096, create_block("./filesystem.txt"));
 }
 
-TEST(load_block, errorcode)
+TEST(load_block, load_exist_filesystem)
 {
 	ASSERT_EQ(0, load_block("./filesystem.txt"));
+}
+
+TEST(load_block, load_non_exist_filesystem)
+{
 	ASSERT_EQ(-1, load_block("./aaaa.txt"));
+}
+
+TEST(load_block, load_no_good_filesystem)
+{
 	file_state = 1;
 	ASSERT_EQ(-4, load_block("./bug_filesystem.txt"));
 }
@@ -22,7 +30,6 @@ TEST(write_block, errorcode)
 	ASSERT_EQ(6, write_block(&block_ID, (void *)"hihihi", 6));
 	ASSERT_EQ(19, write_block(&block_ID, (void *)"Yes it can write it", 19));
 	ASSERT_EQ(8, write_block(&block_ID, (void *)"Third on", 8));
-	ASSERT_EQ(4, write_block(&block_ID, (void *)"TEST", 4));
 }
 
 TEST(modify_block, errorcode)
@@ -31,7 +38,9 @@ TEST(modify_block, errorcode)
 	int block_ID = 1;
 	ASSERT_EQ(10, modify_block(block_ID, (void *)"new hihihi", 10));
 	ASSERT_EQ(-2, modify_block(7890, (void *)"NONONO", 6));
+	ASSERT_EQ(0, modify_block(2, NULL, 0));
 	ASSERT_EQ(-3, modify_block(-8, (void *)"haha no modify_block", 19));
+	ASSERT_EQ(-2, modify_block(0, (void *)"I am bad", 8));
 }
 
 TEST(read_block, errorcode)
@@ -43,7 +52,7 @@ TEST(read_block, errorcode)
         printf("\n\nread block id %d = %s\n\n", block_ID, output);
 
 	ASSERT_EQ(-4, read_block(10, (void *)output));
-	printf("\n\nread block id %d = %s\n\n", block_ID, output);
+	//printf("\n\nread block id %d = %s\n\n", block_ID, output);
 
 	ASSERT_EQ(-2, read_block(8998, (void *)output));
 	ASSERT_EQ(-3, read_block(-2, (void *)output));

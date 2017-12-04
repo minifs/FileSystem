@@ -90,8 +90,8 @@ int modify_block(const int block_ID, void *block, int block_input_length){
 			return -1;
 		}
 		
-		if(block_ID >= BLOCK_SIZE){
-			LOG_WARN("Invalid block_ID\n");
+		if(block_ID >= BLOCK_SIZE ||  block_ID == 0){
+			LOG_WARN("Invalid block_ID %d\n", block_ID);
 			return -2;
 		}
 		
