@@ -1,0 +1,69 @@
+#ifndef _BLOCK_H_
+#define _BLOCK_H_
+
+//#define _DEBUG
+/*
+ * Debugger
+ */
+#ifdef _DEBUG
+	#define DEBUG(format, args...) printf("[%s:%d] "format, __FILE__, __LINE__, ##args)
+#else
+	#define DEBUG(args...)
+#endif
+
+#define LOG_WARN(format, args...) printf("[WARN][%s:%d] "format, __FILE__, __LINE__, ##args);
+
+/*
+ * Header file include
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
+
+/*
+ * Parameter definition
+ */
+#define BLOCK_SIZE 1024 //1KB for one block
+#define NUMBER_OF_BLOCKS 4096 //number of blocks in file system
+
+#define FILE_SYSTEM_HEADER "FileSystem\0"
+
+/*
+ * Global variable 
+ */
+extern int file_state;
+extern int block_map[NUMBER_OF_BLOCKS];
+/*
+ * Function definition
+ */
+
+/*
+ * Create block
+ */
+int create_block(const char *path);
+
+/* 
+ * Load block
+ */
+int load_block(const char *path);
+
+/*
+ *  Modify block
+ */
+int modify_block(const int block_ID, void *block, int block_input_length);
+
+/*
+ * Write block
+ */
+int write_block(int *block_ID, void *block, int block_input_length);
+
+/*
+ * Read block
+ */
+int read_block(const int block_ID, void *block);
+
+#endif
