@@ -8,6 +8,8 @@ LDFLAGS += -lgtest_main
 LDFLAGS += -lgtest 
 LDFLAGS += -lpthread
 
+DEBUG_FLAG += -DEBUG
+
 INC =
 INC += -I../../include
 
@@ -27,7 +29,7 @@ ${EXE_NAME}:${OBJ_FILES}
 	${CXX} ${CXXFLAGS} ${INC} ${OBJ_FILES} ${MAIN_CPP} -o $@ ${LDFLAGS}
 
 ${OBJ_FILES}: %.o : %.c
-	${CXX} ${CXXFLAGS} -c ${INC} $< -o $@ ${LDFLAGS}
+	${CXX} ${CXXFLAGS} -c ${INC} $< -o $@ ${LDFLAGS} ${DEBUG_FLAG}
 clean:
-	rm -rf ${OBJ_FILES} ${EXE_NAME} *.txt
+	rm -rf ${OBJ_FILES} ${EXE_NAME} filesystem.txt
 
