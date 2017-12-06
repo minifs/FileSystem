@@ -66,4 +66,9 @@ int write_block(int *block_ID, void *block, int block_input_length);
  */
 int read_block(const int block_ID, void *block);
 
+/*
+ * Delete block
+ */
+int delete_block(const int block_ID);
+
 #endif
