@@ -56,7 +56,19 @@ TEST(read_block, errorcode)
 
 	ASSERT_EQ(-2, read_block(8998, (void *)output));
 	ASSERT_EQ(-3, read_block(-2, (void *)output));
-}	
+}
+
+TEST(delete_block, errorcode)
+{
+	ASSERT_EQ(0, load_block("./filesystem.txt"));
+	
+	ASSERT_EQ(1, block_map[2]);
+	ASSERT_EQ(0, delete_block(2));
+	ASSERT_EQ(0, block_map[2]);
+
+	ASSERT_EQ(-2, delete_block(1099));
+	ASSERT_EQ(-2, delete_block(-9));
+}
 
 int main(int argc, char **argv)
 {
