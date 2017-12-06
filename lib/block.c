@@ -213,3 +213,37 @@ int read_block(const int block_ID, void *block)
 
 	return byte_read;
 }
+
+int delete_block(const int block_ID){
+	
+	DEBUG("fil_system_path = %s\n", file_system_path);
+	if(file_state > 0){
+		if((file_state = open(file_system_path, O_RDWR)) < 0){
+			LOG_WARN("File system %s does not exist, please call create_block first\n", file_system_path);
+			return -1;
+		}
+		
+		if(block_ID >= BLOCK_SIZE || block_ID <= 0){
+			LOG_WARN("Invalid block_ID\n");
+			return -2;
+		}
+
+		if(lseek(file_state, block_ID * BLOCK_SIZE, SEEK_SET) < 0){
+			LOG_WARN("lseek fail, detail:  %s\n", strerror(errno));
+		       	return -3;
+		}
+
+		char zero[1024] = {0x00};
+		if((write(file_state, zero, BLOCK_SIZE)) != BLOCK_SIZE){
+			LOG_WARN("Fail to write: %s\n", strerror(errno));
+			return -4;
+		}
+
+		block_map[block_ID] = 0;
+		close(file_state);
+	}else{
+		return -1;
+	}
+
+	return 0;
+}
