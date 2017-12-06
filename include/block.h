@@ -52,6 +52,16 @@ int create_block(const char *path);
 int load_block(const char *path);
 
 /*
+ * Super block modify
+ */
+int modify_super_block(void *block, int block_input_length);
+
+/*
+ * Read super block
+ */
+int read_super_block(void *block, int block_output_length);
+
+/*
  *  Modify block
  */
 int modify_block(const int block_ID, void *block, int block_input_length);

@@ -64,6 +64,75 @@ int load_block(const char *path)
 	}
 }
 
+int modify_super_block(void *block, int block_input_length){
+	DEBUG("fil_system_path = %s\n", file_system_path);
+	int byte_written;
+
+	if(file_state > 0){
+		if((file_state = open(file_system_path, O_RDWR)) < 0){
+			LOG_WARN("File system %s does not exist, please call create_block first\n", file_system_path);
+			return -1;
+		}
+		
+		if(lseek(file_state, strlen(FILE_SYSTEM_HEADER), SEEK_SET) < 0){
+			LOG_WARN("lseek fail, detail:  %s\n", strerror(errno));
+		       	return -3;
+		}
+
+		if(block_input_length < BLOCK_SIZE){
+			DEBUG("block_input_length < BLOCK_SIZE\n");
+			if(write(file_state, block, block_input_length) != block_input_length){
+				LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
+				return -4;
+			}
+			byte_written = block_input_length;
+		}else{
+			DEBUG("block_input_length >= BLOCK_SIZE\n");
+			if(write(file_state, block, BLOCK_SIZE) != BLOCK_SIZE){
+				LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
+				return -4;
+			}
+			byte_written = BLOCK_SIZE;
+		}
+		close(file_state);
+	}else{
+		return -1;
+	}
+
+	return byte_written;
+}
+
+int read_super_block(void *block, int block_output_length){
+	DEBUG("fil_system_path = %s\n", file_system_path);
+	int byte_read;
+
+	if(file_state > 0){
+		if((file_state = open(file_system_path, O_RDWR)) < 0){
+			LOG_WARN("File system %s does not exist, please call create_block first\n", file_system_path);
+			return -1;
+		}
+		
+		if(lseek(file_state, strlen(FILE_SYSTEM_HEADER), SEEK_SET) < 0){
+			LOG_WARN("lseek fail, detail:  %s\n", strerror(errno));
+		       	return -3;
+		}
+
+		if(block_output_length < BLOCK_SIZE){
+			DEBUG("block_input_length < BLOCK_SIZE\n");
+			if(read(file_state, block, block_output_length) != block_output_length){
+				LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
+				return -4;
+			}
+			byte_read = block_output_length;
+		}
+		close(file_state);
+	}else{
+		return -1;
+	}
+
+	return byte_read;
+}
+
 /*
  * assign a block to put data
  *

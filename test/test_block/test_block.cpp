@@ -70,6 +70,40 @@ TEST(delete_block, errorcode)
 	ASSERT_EQ(-2, delete_block(-9));
 }
 
+TEST(modify_super_block, errorcode)
+{
+	ASSERT_EQ(0, load_block("./filesystem.txt"));
+
+	struct test{
+		char a;
+		char b;
+		int x;
+	}te;
+
+	te.a = '1';
+	te.b = 'b';
+	te.x = 99;
+
+
+	ASSERT_EQ(sizeof(te), modify_super_block(&te, sizeof(te)));
+}
+
+TEST(read_super_block, errorcode)
+{
+	ASSERT_EQ(0, load_block("./filesystem.txt"));
+
+	struct test{
+		char a;
+		char b;
+		int x;
+	}te;
+
+	ASSERT_EQ(sizeof(te), read_super_block(&te, sizeof(te)));
+	ASSERT_EQ('1', te.a);
+	ASSERT_EQ('b', te.b);
+	ASSERT_EQ(99, te.x);
+}
+
 int main(int argc, char **argv)
 {
 	testing::InitGoogleTest(&argc, argv);
