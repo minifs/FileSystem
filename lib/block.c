@@ -143,6 +143,7 @@ int assign_block(void){
 	int i;
 	for(i = 1; i < NUMBER_OF_BLOCKS; i++){
 		if(block_map[i] == 0){
+			block_map[i] = 1;
 			return i;
 		}
 	}
@@ -151,7 +152,7 @@ int assign_block(void){
 
 int modify_block(const int block_ID, void *block, int block_input_length){
 	DEBUG("fil_system_path = %s\n", file_system_path);
-	int byte_written;
+	int byte_written = 0;
 
 	if(file_state > 0){
 		if((file_state = open(file_system_path, O_RDWR)) < 0){
@@ -206,7 +207,7 @@ int write_block(int *block_ID, void *block, int block_input_length)
 
 		if((*block_ID = assign_block()) != 0){
 			DEBUG("block ID = %d\n", *block_ID);
-			block_map[*block_ID] = 1;
+			//block_map[*block_ID] = 1;
 
 			if(lseek(file_state, (*block_ID) * BLOCK_SIZE, SEEK_SET) < 0){
 				LOG_WARN("lseek fail, detail:  %s\n", strerror(errno));
@@ -302,11 +303,11 @@ int delete_block(const int block_ID){
 		       	return -3;
 		}
 
-		char zero[1024] = {0x00};
-		if((write(file_state, zero, BLOCK_SIZE)) != BLOCK_SIZE){
-			LOG_WARN("Fail to write: %s\n", strerror(errno));
-			return -4;
-		}
+		//char zero[1024] = {0x00};
+		//if((write(file_state, zero, BLOCK_SIZE)) != BLOCK_SIZE){
+		//	LOG_WARN("Fail to write: %s\n", strerror(errno));
+		//	return -4;
+		//}
 
 		block_map[block_ID] = 0;
 		close(file_state);
