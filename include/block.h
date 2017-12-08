@@ -32,11 +32,19 @@
 
 #define FILE_SYSTEM_HEADER "FileSystem\0"
 
+/* 
+ * enum definition
+ */
+typedef enum{
+	TRUE = 1,
+	FALSE = 0
+}BOOL;
+
 /*
  * Global variable 
  */
 extern int file_state;
-extern int block_map[NUMBER_OF_BLOCKS];
+extern short block_map[NUMBER_OF_BLOCKS/8];
 /*
  * Function definition
  */
@@ -80,5 +88,12 @@ int read_block(const int block_ID, void *block);
  * Delete block
  */
 int delete_block(const int block_ID);
+
+
+/*
+ * Tool functions
+ */
+BOOL map_check(int ID);
+
 
 #endif

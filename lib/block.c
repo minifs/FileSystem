@@ -2,8 +2,65 @@
 
 int file_state = -1;//only open or load file system once*/
 static int num_blocks = 0;
-int block_map[NUMBER_OF_BLOCKS] = {0};
+short block_map[NUMBER_OF_BLOCKS/8] = {0};
 char file_system_path[100] = {0};
+
+void map_set(int ID){
+	block_map[ID>>3] |= 1ULL << ID%8;
+}
+
+void map_clear(int ID){
+	block_map[ID>>3] &= ~(1ULL << ID%8);
+}
+
+BOOL map_check(int ID){
+	return (BOOL)((block_map[ID>>3] & (1ULL << ID%8)) >> ID%8);
+}
+
+/*
+ * Update super block
+ * ONLY can be used by block.c functions !!
+ */
+int update_super_block(int fd){
+	if(lseek(fd, strlen(FILE_SYSTEM_HEADER), SEEK_SET) < 0){
+		LOG_WARN("lseek fail, detail:  %s\n", strerror(errno));
+	    	return 0;
+	}	
+	if(write(fd, block_map, NUMBER_OF_BLOCKS/8) != NUMBER_OF_BLOCKS/8){
+		LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
+		return 0;
+	}
+	return 1;
+}
+
+/*
+ * Assign block for user
+ * 	return value >=1 : assign successfully
+ * 	return value = 0 : no valid block
+ */
+int assign_block(void){
+	int i = 1;
+	for(i = 1; i < NUMBER_OF_BLOCKS/8; i++){
+		if(map_check(i) == FALSE){
+			map_set(i);
+			if(update_super_block(file_state)){
+				return i;
+			}else{
+				return 0;
+			}
+		}
+	}
+	return 0;
+}
+
+int release_block(int ID){
+	map_clear(ID);
+	if(update_super_block(file_state)){
+		return 1;
+	}else{
+		return 0;
+	}
+}
 
 int create_block(const char *path)
 {
@@ -74,7 +131,7 @@ int modify_super_block(void *block, int block_input_length){
 			return -1;
 		}
 		
-		if(lseek(file_state, strlen(FILE_SYSTEM_HEADER), SEEK_SET) < 0){
+		if(lseek(file_state, strlen(FILE_SYSTEM_HEADER) + NUMBER_OF_BLOCKS/8, SEEK_SET) < 0){
 			LOG_WARN("lseek fail, detail:  %s\n", strerror(errno));
 		       	return -3;
 		}
@@ -112,7 +169,7 @@ int read_super_block(void *block, int block_output_length){
 			return -1;
 		}
 		
-		if(lseek(file_state, strlen(FILE_SYSTEM_HEADER), SEEK_SET) < 0){
+		if(lseek(file_state, strlen(FILE_SYSTEM_HEADER) + NUMBER_OF_BLOCKS/8, SEEK_SET) < 0){
 			LOG_WARN("lseek fail, detail:  %s\n", strerror(errno));
 		       	return -3;
 		}
@@ -131,23 +188,6 @@ int read_super_block(void *block, int block_output_length){
 	}
 
 	return byte_read;
-}
-
-/*
- * assign a block to put data
- *
- * return >= 1 : assgin works properly
- * return = 0 : fail to assign.
- */
-int assign_block(void){
-	int i;
-	for(i = 1; i < NUMBER_OF_BLOCKS; i++){
-		if(block_map[i] == 0){
-			block_map[i] = 1;
-			return i;
-		}
-	}
-	return 0;
 }
 
 int modify_block(const int block_ID, void *block, int block_input_length){
@@ -309,7 +349,7 @@ int delete_block(const int block_ID){
 		//	return -4;
 		//}
 
-		block_map[block_ID] = 0;
+		release_block(block_ID);
 		close(file_state);
 	}else{
 		return -1;
