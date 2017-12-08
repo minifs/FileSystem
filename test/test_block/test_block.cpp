@@ -62,9 +62,9 @@ TEST(delete_block, errorcode)
 {
 	ASSERT_EQ(0, load_block("./filesystem.txt"));
 	
-	ASSERT_EQ(1, block_map[2]);
+	ASSERT_EQ(1, map_check(2));
 	ASSERT_EQ(0, delete_block(2));
-	ASSERT_EQ(0, block_map[2]);
+	ASSERT_EQ(0, map_check(2));
 
 	ASSERT_EQ(-2, delete_block(1099));
 	ASSERT_EQ(-2, delete_block(-9));
