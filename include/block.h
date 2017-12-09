@@ -6,9 +6,9 @@
  * Debugger
  */
 #ifdef _DEBUG
-	#define DEBUG(format, args...) printf("[%s:%d] "format, __FILE__, __LINE__, ##args)
+#define DEBUG(format, args...) printf("[%s:%d] "format, __FILE__, __LINE__, ##args)
 #else
-	#define DEBUG(args...)
+#define DEBUG(args...)
 #endif
 
 #define LOG_WARN(format, args...) printf("[WARN][%s:%d] "format, __FILE__, __LINE__, ##args);
@@ -32,16 +32,16 @@
 
 #define FILE_SYSTEM_HEADER "FileSystem\0"
 
-/* 
+/*
  * enum definition
  */
-typedef enum{
-	TRUE = 1,
-	FALSE = 0
-}BOOL;
+typedef enum {
+    TRUE = 1,
+    FALSE = 0
+} BOOL;
 
 /*
- * Global variable 
+ * Global variable
  */
 extern int file_state;
 extern short block_map[NUMBER_OF_BLOCKS/8];
@@ -54,7 +54,7 @@ extern short block_map[NUMBER_OF_BLOCKS/8];
  */
 int create_block(const char *path);
 
-/* 
+/*
  * Load block
  */
 int load_block(const char *path);
