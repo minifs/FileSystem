@@ -2,12 +2,12 @@
 
 int file_state = -1;//only open or load file system once*/
 static int num_blocks = 0;
-short block_map[NUMBER_OF_BLOCKS/8] = {0};
+uint8_t block_map[NUMBER_OF_BLOCKS/8] = {0};
 char file_system_path[100] = {0};
 
 void map_set(int ID)
 {
-    block_map[ID>>3] |= 1ULL << ID%8;
+    block_map[ID>>3] |= 1ULL << (ID%8);
 }
 
 void map_clear(int ID)
@@ -17,7 +17,19 @@ void map_clear(int ID)
 
 BOOL map_check(int ID)
 {
-    return (BOOL)((block_map[ID>>3] & (1ULL << ID%8)) >> ID%8);
+    uint8_t map[NUMBER_OF_BLOCKS/8] = {0};
+
+    if(lseek(file_state, strlen(FILE_SYSTEM_HEADER), SEEK_SET) < 0) {
+        LOG_WARN("lseek fail, detail:  %s\n", strerror(errno));
+        return FALSE;
+    }
+
+    if(read(file_state, map, NUMBER_OF_BLOCKS/8) != NUMBER_OF_BLOCKS/8) {
+        LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
+        return FALSE;
+    }
+
+    return (BOOL)((map[ID>>3] & (1ULL << ID%8)) >> ID%8);
 }
 
 /*
@@ -68,7 +80,7 @@ int release_block(int ID)
     }
 }
 
-int create_block(const char *path)
+int create_filesystem(const char *path)
 {
     struct stat st;
 
@@ -92,7 +104,7 @@ int create_block(const char *path)
     return num_blocks;
 }
 
-int load_block(const char *path)
+int load_filesystem(const char *path)
 {
     struct stat st;
     LOG_DEBUG("file_state = %d\n", file_state);
@@ -209,7 +221,7 @@ int modify_block(const int block_ID, void *block, int block_input_length)
             return -1;
         }
 
-        if(block_ID >= BLOCK_SIZE ||  block_ID == 0) {
+        if(block_ID >= BLOCK_SIZE ||  block_ID == 0 || map_check(block_ID) == FALSE) {
             LOG_WARN("Invalid block_ID %d\n", block_ID);
             return -2;
         }
@@ -308,7 +320,7 @@ int read_block(const int block_ID, void *block)
             return -1;
         }
 
-        if(block_ID >= BLOCK_SIZE) {
+        if(block_ID >= BLOCK_SIZE || block_ID == 0 || map_check(block_ID) == FALSE) {
             LOG_WARN("Invalid block_ID\n");
             return -2;
         }
@@ -343,7 +355,7 @@ int delete_block(const int block_ID)
             return -1;
         }
 
-        if(block_ID >= BLOCK_SIZE || block_ID <= 0) {
+        if(block_ID >= BLOCK_SIZE || block_ID <= 0 || map_check(block_ID) == FALSE) {
             LOG_WARN("Invalid block_ID\n");
             return -2;
         }

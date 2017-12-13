@@ -2,40 +2,42 @@
 #include <gtest/gtest.h>
 #include "block.h"
 
-TEST(create_block, errorcode)
+TEST(create_filesystem, errorcode)
 {
-    ASSERT_EQ(4096, create_block("./filesystem.txt"));
+    ASSERT_EQ(4096, create_filesystem("./filesystem.txt"));
 }
 
-TEST(load_block, load_exist_filesystem)
+TEST(load_filesystem, load_exist_filesystem)
 {
-    ASSERT_EQ(0, load_block("./filesystem.txt"));
+    ASSERT_EQ(0, load_filesystem("./filesystem.txt"));
 }
 
-TEST(load_block, load_non_exist_filesystem)
+TEST(load_filesystem, load_non_exist_filesystem)
 {
-    ASSERT_EQ(-1, load_block("./aaaa.txt"));
+    ASSERT_EQ(-1, load_filesystem("./aaaa.txt"));
 }
 
-TEST(load_block, load_no_good_filesystem)
+TEST(load_filesystem, load_no_good_filesystem)
 {
     file_state = 1;
-    ASSERT_EQ(-4, load_block("./bug_filesystem.txt"));
+    ASSERT_EQ(-4, load_filesystem("./bug_filesystem.txt"));
 }
 
 TEST(write_block, errorcode)
 {
-    ASSERT_EQ(4096, create_block("./filesystem.txt"));
+    ASSERT_EQ(4096, create_filesystem("./filesystem.txt"));
     int block_ID;
     ASSERT_EQ(6, write_block(&block_ID, (void *)"hihihi", 6));
     ASSERT_EQ(19, write_block(&block_ID, (void *)"Yes it can write it", 19));
     ASSERT_EQ(8, write_block(&block_ID, (void *)"Third on", 8));
+    ASSERT_EQ(3, write_block(&block_ID, (void *)"abc", 3));
+    ASSERT_EQ(3, write_block(&block_ID, (void *)"abc", 3));
 }
 
 TEST(modify_block, errorcode)
 {
-    ASSERT_EQ(0, load_block("./filesystem.txt"));
-    int block_ID = 1;
+    ASSERT_EQ(0, load_filesystem("./filesystem.txt"));
+    int block_ID = 2;
     ASSERT_EQ(10, modify_block(block_ID, (void *)"new hihihi", 10));
     ASSERT_EQ(-2, modify_block(7890, (void *)"NONONO", 6));
     ASSERT_EQ(0, modify_block(2, NULL, 0));
@@ -45,34 +47,49 @@ TEST(modify_block, errorcode)
 
 TEST(read_block, errorcode)
 {
-    ASSERT_EQ(0, load_block("./filesystem.txt"));
+    ASSERT_EQ(0, load_filesystem("./filesystem.txt"));
     int block_ID = 2;
     char output[1024] = {0};
     ASSERT_EQ(1024, read_block(block_ID, (void *)output));
     printf("\n\nread block id %d = %s\n\n", block_ID, output);
 
-    ASSERT_EQ(-4, read_block(10, (void *)output));
+    ASSERT_EQ(-2, read_block(10, (void *)output));//invalid ID
     //printf("\n\nread block id %d = %s\n\n", block_ID, output);
 
     ASSERT_EQ(-2, read_block(8998, (void *)output));
-    ASSERT_EQ(-3, read_block(-2, (void *)output));
+    ASSERT_EQ(-2, read_block(-2, (void *)output));
 }
 
 TEST(delete_block, errorcode)
 {
-    ASSERT_EQ(0, load_block("./filesystem.txt"));
+    ASSERT_EQ(0, load_filesystem("./filesystem.txt"));
+    int file_state;
+    file_state = open("./filesystem.txt", O_RDWR);
+    lseek(file_state, strlen(FILE_SYSTEM_HEADER), SEEK_SET);
 
-    ASSERT_EQ(1, map_check(2));
+    char check[NUMBER_OF_BLOCKS/8] = {0};
+    read(file_state, check, NUMBER_OF_BLOCKS/8);
+
+    LOG_DEBUG("check before delete block = %x\n", check[0]);
+    ASSERT_EQ(0x3e, check[0]);
+
     ASSERT_EQ(0, delete_block(2));
-    ASSERT_EQ(0, map_check(2));
+    lseek(file_state, strlen(FILE_SYSTEM_HEADER), SEEK_SET);
+    read(file_state, check, NUMBER_OF_BLOCKS/8);
+    LOG_DEBUG("check after delete block = %x\n", check[0]);
+    ASSERT_EQ(0x3a, check[0]);
+
+    close(file_state);
+
 
     ASSERT_EQ(-2, delete_block(1099));
     ASSERT_EQ(-2, delete_block(-9));
+
 }
 
 TEST(modify_super_block, errorcode)
 {
-    ASSERT_EQ(0, load_block("./filesystem.txt"));
+    ASSERT_EQ(0, load_filesystem("./filesystem.txt"));
 
     struct test {
         char a;
@@ -90,7 +107,7 @@ TEST(modify_super_block, errorcode)
 
 TEST(read_super_block, errorcode)
 {
-    ASSERT_EQ(0, load_block("./filesystem.txt"));
+    ASSERT_EQ(0, load_filesystem("./filesystem.txt"));
 
     struct test {
         char a;
