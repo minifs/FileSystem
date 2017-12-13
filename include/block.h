@@ -18,6 +18,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -44,7 +45,7 @@ typedef enum {
  * Global variable
  */
 extern int file_state;
-extern short block_map[NUMBER_OF_BLOCKS/8];
+extern uint8_t block_map[NUMBER_OF_BLOCKS/8];
 /*
  * Function definition
  */
@@ -52,12 +53,12 @@ extern short block_map[NUMBER_OF_BLOCKS/8];
 /*
  * Create block
  */
-int create_block(const char *path);
+int create_filesystem(const char *path);
 
 /*
  * Load block
  */
-int load_block(const char *path);
+int load_filesystem(const char *path);
 
 /*
  * Super block modify
