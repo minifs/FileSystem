@@ -6,9 +6,9 @@
  * Debugger
  */
 #ifdef _DEBUG
-#define DEBUG(format, args...) printf("[%s:%d] "format, __FILE__, __LINE__, ##args)
+#define LOG_DEBUG(format, args...) printf("[%s:%d] "format, __FILE__, __LINE__, ##args)
 #else
-#define DEBUG(args...)
+#define LOG_DEBUG(args...)
 #endif
 
 #define LOG_WARN(format, args...) printf("[WARN][%s:%d] "format, __FILE__, __LINE__, ##args);
