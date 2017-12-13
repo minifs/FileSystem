@@ -88,14 +88,14 @@ int create_block(const char *path)
         close(file_state);
     }
     num_blocks = NUMBER_OF_BLOCKS;
-    DEBUG("file_state = %d\n", file_state);
+    LOG_DEBUG("file_state = %d\n", file_state);
     return num_blocks;
 }
 
 int load_block(const char *path)
 {
     struct stat st;
-    DEBUG("file_state = %d\n", file_state);
+    LOG_DEBUG("file_state = %d\n", file_state);
     if(file_state > 0) {
         if((file_state = open(path, O_RDWR)) < 0) {
             LOG_WARN("File system %s does not exist, please call create_block first\n", path);
@@ -111,8 +111,8 @@ int load_block(const char *path)
             LOG_WARN("Bad read from file system, error code : %s\n", strerror(errno));
             return -3;
         } else {
-            DEBUG("checker = %s\n", checker);
-            DEBUG("strlen(FILE_SYSTEM_HEADER) = %d\n", strlen(FILE_SYSTEM_HEADER));
+            LOG_DEBUG("checker = %s\n", checker);
+            LOG_DEBUG("strlen(FILE_SYSTEM_HEADER) = %d\n", strlen(FILE_SYSTEM_HEADER));
             if(strcmp(checker, FILE_SYSTEM_HEADER) != 0) {
                 LOG_WARN("Bad file system header\n");
                 return -4;
@@ -129,7 +129,7 @@ int load_block(const char *path)
 
 int modify_super_block(void *block, int block_input_length)
 {
-    DEBUG("fil_system_path = %s\n", file_system_path);
+    LOG_DEBUG("fil_system_path = %s\n", file_system_path);
     int byte_written;
 
     if(file_state > 0) {
@@ -144,14 +144,14 @@ int modify_super_block(void *block, int block_input_length)
         }
 
         if(block_input_length < BLOCK_SIZE) {
-            DEBUG("block_input_length < BLOCK_SIZE\n");
+            LOG_DEBUG("block_input_length < BLOCK_SIZE\n");
             if(write(file_state, block, block_input_length) != block_input_length) {
                 LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
                 return -4;
             }
             byte_written = block_input_length;
         } else {
-            DEBUG("block_input_length >= BLOCK_SIZE\n");
+            LOG_DEBUG("block_input_length >= BLOCK_SIZE\n");
             if(write(file_state, block, BLOCK_SIZE) != BLOCK_SIZE) {
                 LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
                 return -4;
@@ -168,7 +168,7 @@ int modify_super_block(void *block, int block_input_length)
 
 int read_super_block(void *block, int block_output_length)
 {
-    DEBUG("fil_system_path = %s\n", file_system_path);
+    LOG_DEBUG("fil_system_path = %s\n", file_system_path);
     int byte_read;
 
     if(file_state > 0) {
@@ -183,7 +183,7 @@ int read_super_block(void *block, int block_output_length)
         }
 
         if(block_output_length < BLOCK_SIZE) {
-            DEBUG("block_input_length < BLOCK_SIZE\n");
+            LOG_DEBUG("block_input_length < BLOCK_SIZE\n");
             if(read(file_state, block, block_output_length) != block_output_length) {
                 LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
                 return -4;
@@ -200,7 +200,7 @@ int read_super_block(void *block, int block_output_length)
 
 int modify_block(const int block_ID, void *block, int block_input_length)
 {
-    DEBUG("fil_system_path = %s\n", file_system_path);
+    LOG_DEBUG("fil_system_path = %s\n", file_system_path);
     int byte_written = 0;
 
     if(file_state > 0) {
@@ -220,14 +220,14 @@ int modify_block(const int block_ID, void *block, int block_input_length)
         }
 
         if(block_input_length < BLOCK_SIZE) {
-            DEBUG("block_input_length < BLOCK_SIZE\n");
+            LOG_DEBUG("block_input_length < BLOCK_SIZE\n");
             if(write(file_state, block, block_input_length) != block_input_length) {
                 LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
                 return -4;
             }
             byte_written = block_input_length;
         } else {
-            DEBUG("block_input_length >= BLOCK_SIZE\n");
+            LOG_DEBUG("block_input_length >= BLOCK_SIZE\n");
             if(write(file_state, block, BLOCK_SIZE) != BLOCK_SIZE) {
                 LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
                 return -4;
@@ -247,7 +247,7 @@ int write_block(int *block_ID, void *block, int block_input_length)
 {
     int byte_written = 0;
 
-    DEBUG("fil_system_path = %s\n", file_system_path);
+    LOG_DEBUG("fil_system_path = %s\n", file_system_path);
     if(file_state > 0) {
         if((file_state = open(file_system_path, O_RDWR)) < 0) {
             LOG_WARN("File system %s does not exist, please call create_block first\n", file_system_path);
@@ -255,7 +255,7 @@ int write_block(int *block_ID, void *block, int block_input_length)
         }
 
         if((*block_ID = assign_block()) != 0) {
-            DEBUG("block ID = %d\n", *block_ID);
+            LOG_DEBUG("block ID = %d\n", *block_ID);
             //block_map[*block_ID] = 1;
 
             if(lseek(file_state, (*block_ID) * BLOCK_SIZE, SEEK_SET) < 0) {
@@ -264,20 +264,20 @@ int write_block(int *block_ID, void *block, int block_input_length)
             }
 
             if(block_input_length < BLOCK_SIZE) {
-                DEBUG("block_input_length < BLOCK_SIZE\n");
+                LOG_DEBUG("block_input_length < BLOCK_SIZE\n");
                 if(write(file_state, block, block_input_length) != block_input_length) {
                     LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
                     return -4;
                 }
                 int i;
                 char zero = 0x00;
-                DEBUG("BLOCK_SIZE - block_input_length = %d\n", BLOCK_SIZE - block_input_length);
+                LOG_DEBUG("BLOCK_SIZE - block_input_length = %d\n", BLOCK_SIZE - block_input_length);
                 for(i = 0; i < BLOCK_SIZE - block_input_length; i++) {
                     write(file_state, &zero, sizeof(zero));
                 }
                 byte_written = block_input_length;
             } else {
-                DEBUG("block_input_length >= BLOCK_SIZE\n");
+                LOG_DEBUG("block_input_length >= BLOCK_SIZE\n");
                 if(write(file_state, block, BLOCK_SIZE) != BLOCK_SIZE) {
                     LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
                     return -4;
@@ -285,7 +285,7 @@ int write_block(int *block_ID, void *block, int block_input_length)
                 byte_written = BLOCK_SIZE;
             }
         } else {
-            DEBUG("block ID = %d\n", *block_ID);
+            LOG_DEBUG("block ID = %d\n", *block_ID);
             LOG_WARN("There is no block can be assigned\n");
             return -2;
         }
@@ -301,7 +301,7 @@ int read_block(const int block_ID, void *block)
 {
     int byte_read = 0;
 
-    DEBUG("fil_system_path = %s\n", file_system_path);
+    LOG_DEBUG("fil_system_path = %s\n", file_system_path);
     if(file_state > 0) {
         if((file_state = open(file_system_path, O_RDWR)) < 0) {
             LOG_WARN("File system %s does not exist, please call create_block first\n", file_system_path);
@@ -336,7 +336,7 @@ int read_block(const int block_ID, void *block)
 int delete_block(const int block_ID)
 {
 
-    DEBUG("fil_system_path = %s\n", file_system_path);
+    LOG_DEBUG("fil_system_path = %s\n", file_system_path);
     if(file_state > 0) {
         if((file_state = open(file_system_path, O_RDWR)) < 0) {
             LOG_WARN("File system %s does not exist, please call create_block first\n", file_system_path);
