@@ -15,6 +15,7 @@ INC += -I../../include
 
 SRC = 
 SRC += ../../lib/block
+SRC += ../../lib/log
 
 CXX = g++
 
