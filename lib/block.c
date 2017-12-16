@@ -102,13 +102,13 @@ int create_filesystem(const char *path)
         write(file_state, FILE_SYSTEM_HEADER, strlen(FILE_SYSTEM_HEADER));
         snprintf(file_system_path, 100, "%s", path);
 
-	int i;
-	for(i = 0; i <= 513; i++){
-		map_set(i);//reverse the first 514 blocks for inodes.
-	}
+        int i;
+        for(i = 0; i <= 513; i++) {
+            map_set(i);//reverse the first 514 blocks for inodes.
+        }
 
-	update_super_block(file_state);
-	close(file_state);
+        update_super_block(file_state);
+        close(file_state);
     }
     num_blocks = NUMBER_OF_BLOCKS;
     LOG_DEBUG("file_state = %d\n", file_state);

@@ -46,8 +46,8 @@ TEST(modify_block, errorcode)
     read(file_state, buffer, 10);
     LOG_DEBUG("buffer = %s\n", buffer);
     ASSERT_STREQ(buffer, "new hihihi");
-    
-    
+
+
     ASSERT_EQ(-2, modify_block(7890, (void *)"NONONO", 6));
     ASSERT_EQ(0, modify_block(2, NULL, 0));
     ASSERT_EQ(-3, modify_block(-8, (void *)"haha no modify_block", 19));

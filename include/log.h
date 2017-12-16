@@ -13,9 +13,9 @@ void funclog (const char *format,... );
 
 #define _FILE strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__
 #define NO_LOG          0x00
-#define FATAL_LEVEL		0x01
+#define FATAL_LEVEL	0x01
 #define ERROR_LEVEL     0x02
-#define WARN_LEVEL		0x03
+#define WARN_LEVEL	0x03
 #define INFO_LEVEL      0x04
 #define DEBUG_LEVEL     0x05
 
@@ -24,10 +24,10 @@ void funclog (const char *format,... );
 #endif
 #define NEWLINE     "\n"
 
-#define FATAL_TAG	"FATAL"
+#define FATAL_TAG   "FATAL"
 #define ERROR_TAG   "ERROR"
 #define INFO_TAG    "INFO"
-#define WARN_TAG	"WARN"
+#define WARN_TAG    "WARN"
 #define DEBUG_TAG   "DEBUG"
 #define LOG_FMT             "[%-5s] %-15s:[%d]:%s: "
 #define LOG_ARGS(LOG_TAG)   LOG_TAG, _FILE,__LINE__ , __FUNCTION__
