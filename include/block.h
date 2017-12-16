@@ -21,7 +21,7 @@
 #define BLOCK_SIZE 1024 //1KB for one block
 #define NUMBER_OF_BLOCKS 4096 //number of blocks in file system
 #define SUPER_BLOCK_SIZE 1024 - 10 - NUMBER_OF_BLOCKS/SIZEOF_BYTE
-#define Assign_block_from 513
+#define Assign_block_from 514
 
 #define FILE_SYSTEM_HEADER "FileSystem\0"
 

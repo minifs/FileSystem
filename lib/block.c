@@ -103,8 +103,8 @@ int create_filesystem(const char *path)
         snprintf(file_system_path, 100, "%s", path);
 
 	int i;
-	for(i = 0; i <= 512; i++){
-		map_set(i);//reverse the first 512 blocks for inodes.
+	for(i = 0; i <= 513; i++){
+		map_set(i);//reverse the first 514 blocks for inodes.
 	}
 
 	update_super_block(file_state);

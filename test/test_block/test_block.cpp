@@ -38,11 +38,11 @@ TEST(write_block, errorcode)
 TEST(modify_block, errorcode)
 {
     ASSERT_EQ(0, load_filesystem("./filesystem.txt"));
-    int block_ID = 513;
+    int block_ID = 514;
     char buffer[11] = {0};
     ASSERT_EQ(10, modify_block(block_ID, (void *)"new hihihi", 10));
     file_state = open("./filesystem.txt", O_RDWR);
-    lseek(file_state, 513*BLOCK_SIZE, SEEK_SET);
+    lseek(file_state, block_ID*BLOCK_SIZE, SEEK_SET);
     read(file_state, buffer, 10);
     LOG_DEBUG("buffer = %s\n", buffer);
     ASSERT_STREQ(buffer, "new hihihi");
@@ -57,7 +57,7 @@ TEST(modify_block, errorcode)
 TEST(read_block, errorcode)
 {
     ASSERT_EQ(0, load_filesystem("./filesystem.txt"));
-    int block_ID = 513;
+    int block_ID = 514;
     char output[1024] = {0};
     ASSERT_EQ(1024, read_block(block_ID, (void *)output));
     LOG_DEBUG("\n\nread block id %d = %s\n\n", block_ID, output);
@@ -79,13 +79,20 @@ TEST(delete_block, errorcode)
     read(file_state, check, NUMBER_OF_BLOCKS/8);
 
     LOG_DEBUG("check before delete block = %x\n", check[64]);
-    ASSERT_EQ(0x3f, check[64]);
+    ASSERT_EQ(0x7f, check[64]);
 
-    ASSERT_EQ(0, delete_block(513));
+    ASSERT_EQ(0, delete_block(514));
     lseek(file_state, strlen(FILE_SYSTEM_HEADER), SEEK_SET);
     read(file_state, check, NUMBER_OF_BLOCKS/8);
     LOG_DEBUG("check after delete block = %x\n", check[64]);
-    ASSERT_EQ(0x3d, check[64]);
+    ASSERT_EQ(0x7b, check[64]);
+
+
+    ASSERT_EQ(0, delete_block(518));
+    lseek(file_state, strlen(FILE_SYSTEM_HEADER), SEEK_SET);
+    read(file_state, check, NUMBER_OF_BLOCKS/8);
+    LOG_DEBUG("check after delete block 518 = %x\n", check[64]);
+    ASSERT_EQ(0x3b, check[64]);
 
     close(file_state);
 
