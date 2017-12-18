@@ -1,6 +1,7 @@
 //testgcd.cpp
 #include <gtest/gtest.h>
 #include "block.h"
+#include "log.h"
 
 TEST(create_filesystem, errorcode)
 {
@@ -37,8 +38,16 @@ TEST(write_block, errorcode)
 TEST(modify_block, errorcode)
 {
     ASSERT_EQ(0, load_filesystem("./filesystem.txt"));
-    int block_ID = 2;
+    int block_ID = 514;
+    char buffer[11] = {0};
     ASSERT_EQ(10, modify_block(block_ID, (void *)"new hihihi", 10));
+    file_state = open("./filesystem.txt", O_RDWR);
+    lseek(file_state, block_ID*BLOCK_SIZE, SEEK_SET);
+    read(file_state, buffer, 10);
+    LOG_DEBUG("buffer = %s\n", buffer);
+    ASSERT_STREQ(buffer, "new hihihi");
+
+
     ASSERT_EQ(-2, modify_block(7890, (void *)"NONONO", 6));
     ASSERT_EQ(0, modify_block(2, NULL, 0));
     ASSERT_EQ(-3, modify_block(-8, (void *)"haha no modify_block", 19));
@@ -48,13 +57,12 @@ TEST(modify_block, errorcode)
 TEST(read_block, errorcode)
 {
     ASSERT_EQ(0, load_filesystem("./filesystem.txt"));
-    int block_ID = 2;
+    int block_ID = 514;
     char output[1024] = {0};
     ASSERT_EQ(1024, read_block(block_ID, (void *)output));
-    printf("\n\nread block id %d = %s\n\n", block_ID, output);
+    LOG_DEBUG("\n\nread block id %d = %s\n\n", block_ID, output);
+    ASSERT_STREQ(output, "new hihihi");
 
-    ASSERT_EQ(-2, read_block(10, (void *)output));//invalid ID
-    //printf("\n\nread block id %d = %s\n\n", block_ID, output);
 
     ASSERT_EQ(-2, read_block(8998, (void *)output));
     ASSERT_EQ(-2, read_block(-2, (void *)output));
@@ -70,14 +78,21 @@ TEST(delete_block, errorcode)
     char check[NUMBER_OF_BLOCKS/8] = {0};
     read(file_state, check, NUMBER_OF_BLOCKS/8);
 
-    LOG_DEBUG("check before delete block = %x\n", check[0]);
-    ASSERT_EQ(0x3e, check[0]);
+    LOG_DEBUG("check before delete block = %x\n", check[64]);
+    ASSERT_EQ(0x7f, check[64]);
 
-    ASSERT_EQ(0, delete_block(2));
+    ASSERT_EQ(0, delete_block(514));
     lseek(file_state, strlen(FILE_SYSTEM_HEADER), SEEK_SET);
     read(file_state, check, NUMBER_OF_BLOCKS/8);
-    LOG_DEBUG("check after delete block = %x\n", check[0]);
-    ASSERT_EQ(0x3a, check[0]);
+    LOG_DEBUG("check after delete block = %x\n", check[64]);
+    ASSERT_EQ(0x7b, check[64]);
+
+
+    ASSERT_EQ(0, delete_block(518));
+    lseek(file_state, strlen(FILE_SYSTEM_HEADER), SEEK_SET);
+    read(file_state, check, NUMBER_OF_BLOCKS/8);
+    LOG_DEBUG("check after delete block 518 = %x\n", check[64]);
+    ASSERT_EQ(0x3b, check[64]);
 
     close(file_state);
 

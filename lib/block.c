@@ -2,34 +2,38 @@
 
 int file_state = -1;//only open or load file system once*/
 static int num_blocks = 0;
-uint8_t block_map[NUMBER_OF_BLOCKS/8] = {0};
+uint8_t block_map[NUMBER_OF_BLOCKS/SIZEOF_BYTE] = {0};
 char file_system_path[100] = {0};
 
 void map_set(int ID)
 {
-    block_map[ID>>3] |= 1ULL << (ID%8);
+    block_map[ID>>3] |= 1ULL << (ID%SIZEOF_BYTE);
 }
 
 void map_clear(int ID)
 {
-    block_map[ID>>3] &= ~(1ULL << ID%8);
+    block_map[ID>>3] &= ~(1ULL << ID%SIZEOF_BYTE);
 }
 
+/*
+ * map check
+ * read map from filesytem super block, this function will read from REAL filesystem not memory
+ */
 BOOL map_check(int ID)
 {
-    uint8_t map[NUMBER_OF_BLOCKS/8] = {0};
+    uint8_t map[NUMBER_OF_BLOCKS/SIZEOF_BYTE] = {0};
 
     if(lseek(file_state, strlen(FILE_SYSTEM_HEADER), SEEK_SET) < 0) {
         LOG_WARN("lseek fail, detail:  %s\n", strerror(errno));
         return FALSE;
     }
 
-    if(read(file_state, map, NUMBER_OF_BLOCKS/8) != NUMBER_OF_BLOCKS/8) {
+    if(read(file_state, map, NUMBER_OF_BLOCKS/SIZEOF_BYTE) != NUMBER_OF_BLOCKS/SIZEOF_BYTE) {
         LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
         return FALSE;
     }
 
-    return (BOOL)((map[ID>>3] & (1ULL << ID%8)) >> ID%8);
+    return (BOOL)((map[ID>>3] & (1ULL << ID%SIZEOF_BYTE)) >> ID%SIZEOF_BYTE);
 }
 
 /*
@@ -42,7 +46,7 @@ int update_super_block(int fd)
         LOG_WARN("lseek fail, detail:  %s\n", strerror(errno));
         return 0;
     }
-    if(write(fd, block_map, NUMBER_OF_BLOCKS/8) != NUMBER_OF_BLOCKS/8) {
+    if(write(fd, block_map, NUMBER_OF_BLOCKS/SIZEOF_BYTE) != NUMBER_OF_BLOCKS/SIZEOF_BYTE) {
         LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
         return 0;
     }
@@ -56,8 +60,8 @@ int update_super_block(int fd)
  */
 int assign_block(void)
 {
-    int i = 1;
-    for(i = 1; i < NUMBER_OF_BLOCKS/8; i++) {
+    int i;
+    for(i = Assign_block_from; i < NUMBER_OF_BLOCKS; i++) {
         if(map_check(i) == FALSE) {
             map_set(i);
             if(update_super_block(file_state)) {
@@ -97,6 +101,13 @@ int create_filesystem(const char *path)
         }
         write(file_state, FILE_SYSTEM_HEADER, strlen(FILE_SYSTEM_HEADER));
         snprintf(file_system_path, 100, "%s", path);
+
+        int i;
+        for(i = 0; i <= 513; i++) {
+            map_set(i);//reverse the first 514 blocks for inodes.
+        }
+
+        update_super_block(file_state);
         close(file_state);
     }
     num_blocks = NUMBER_OF_BLOCKS;
@@ -150,12 +161,12 @@ int modify_super_block(void *block, int block_input_length)
             return -1;
         }
 
-        if(lseek(file_state, strlen(FILE_SYSTEM_HEADER) + NUMBER_OF_BLOCKS/8, SEEK_SET) < 0) {
+        if(lseek(file_state, strlen(FILE_SYSTEM_HEADER) + NUMBER_OF_BLOCKS/SIZEOF_BYTE, SEEK_SET) < 0) {
             LOG_WARN("lseek fail, detail:  %s\n", strerror(errno));
             return -3;
         }
 
-        if(block_input_length < BLOCK_SIZE) {
+        if(block_input_length < SUPER_BLOCK_SIZE) {
             LOG_DEBUG("block_input_length < BLOCK_SIZE\n");
             if(write(file_state, block, block_input_length) != block_input_length) {
                 LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
@@ -164,11 +175,11 @@ int modify_super_block(void *block, int block_input_length)
             byte_written = block_input_length;
         } else {
             LOG_DEBUG("block_input_length >= BLOCK_SIZE\n");
-            if(write(file_state, block, BLOCK_SIZE) != BLOCK_SIZE) {
+            if(write(file_state, block, SUPER_BLOCK_SIZE) != SUPER_BLOCK_SIZE) {
                 LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
                 return -4;
             }
-            byte_written = BLOCK_SIZE;
+            byte_written = SUPER_BLOCK_SIZE;
         }
         close(file_state);
     } else {
@@ -189,12 +200,12 @@ int read_super_block(void *block, int block_output_length)
             return -1;
         }
 
-        if(lseek(file_state, strlen(FILE_SYSTEM_HEADER) + NUMBER_OF_BLOCKS/8, SEEK_SET) < 0) {
+        if(lseek(file_state, strlen(FILE_SYSTEM_HEADER) + NUMBER_OF_BLOCKS/SIZEOF_BYTE, SEEK_SET) < 0) {
             LOG_WARN("lseek fail, detail:  %s\n", strerror(errno));
             return -3;
         }
 
-        if(block_output_length < BLOCK_SIZE) {
+        if(block_output_length < SUPER_BLOCK_SIZE) {
             LOG_DEBUG("block_input_length < BLOCK_SIZE\n");
             if(read(file_state, block, block_output_length) != block_output_length) {
                 LOG_WARN("Fail to write, detail: %s\n", strerror(errno));

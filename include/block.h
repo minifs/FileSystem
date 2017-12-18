@@ -1,18 +1,6 @@
 #ifndef _BLOCK_H_
 #define _BLOCK_H_
 
-//#define _DEBUG
-/*
- * Debugger
- */
-#ifdef _DEBUG
-#define LOG_DEBUG(format, args...) printf("[%s:%d] "format, __FILE__, __LINE__, ##args)
-#else
-#define LOG_DEBUG(args...)
-#endif
-
-#define LOG_WARN(format, args...) printf("[WARN][%s:%d] "format, __FILE__, __LINE__, ##args);
-
 /*
  * Header file include
  */
@@ -24,12 +12,16 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include "log.h"
 
 /*
  * Parameter definition
  */
+#define SIZEOF_BYTE 8
 #define BLOCK_SIZE 1024 //1KB for one block
 #define NUMBER_OF_BLOCKS 4096 //number of blocks in file system
+#define SUPER_BLOCK_SIZE 1024 - 10 - NUMBER_OF_BLOCKS/SIZEOF_BYTE
+#define Assign_block_from 514
 
 #define FILE_SYSTEM_HEADER "FileSystem\0"
 
