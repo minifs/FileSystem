@@ -1,5 +1,6 @@
-# Mini File System - team 8  
-Mini File System is a easy way to simply implement file system on Linux OS.
+# Mini Filesystem(minifs) - team 8  
+Mini Filesystem is a easy way to simply implement filesystem on Linux OS.
+This is the ext2 deformation.
 
 # Development  
 ## Environment Requirement  
@@ -10,6 +11,9 @@ Mini File System is a easy way to simply implement file system on Linux OS.
 - gcc >= 4.8
 
 ## Build  
+
+## Coding Style
+`$ astyle --style=kr <fliename>`
 
 ## Test  
 Using `gtest`  
