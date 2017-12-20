@@ -7,20 +7,23 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 #include "log.h"
 
 #define BYTE_SIZE 8
 #define INODE_SIZE 128
 #define INODE_NUM 4096
 
-typedef struct inode
+typedef struct inode_entry
 {
 	short id;
 	int filesize;
 	short uid;
 	short gid;
 	short filemode;
-	timestamp timestamp;
+	time_t timestamp;
+	short file_type;
+	short name_len;
 	int num[15];
 	char filename[32];
 
