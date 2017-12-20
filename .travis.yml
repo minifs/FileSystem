@@ -1,0 +1,17 @@
+sudo: false
+dist: xenial
+language: C
+compiler:
+    - gcc
+
+before_install:
+  # downloading astyle-2.06
+  - mkdir -p .travis-tmp/astyle-2.06
+  - wget -P .travis-tmp/astyle-2.06/ https://sourceforge.net/projects/astyle/files/astyle/astyle%202.06/astyle_2.06_linux.tar.gz
+  - tar xvzf .travis-tmp/astyle-2.06/astyle_2.06_linux.tar.gz -C .travis-tmp/astyle-2.06/
+ # build astyle-2.06
+  - pushd .travis-tmp/astyle-2.06/astyle/build/gcc && make && export PATH=`pwd`/bin:$PATH && popd
+
+
+script:
+  - bash coding_style_check.sh
