@@ -8,6 +8,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <stdbool.h>
 #include "log.h"
 
 #define BYTE_SIZE 8
@@ -65,6 +66,18 @@ int delete_file (const inode_entey *inode_entry);
 
 int write_file (const inode_entey *inode_entry, void* file);
 
+
+
+/*
+ * Directory function
+ */
+char* dir_init();
+
+char* dir_ls(const char *filename);
+
+bool dir_search(const char *filename);
+
+bool dir_create(const char *filename);
 
 /*
  * Ext2 directory file types.  Only the low 3 bits are used.  The
