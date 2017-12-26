@@ -28,3 +28,19 @@ int write_file_by_path(const char *path, void *buf, int size);
  * Delete file
  */
 int delete_file_by_path(const char *path);
+
+
+/*
+ * Create file
+ */
+ int create_file(const char *dpath, int fname_len);
+ 
+ /*
+ * Rename file
+ */
+ int rename_file(const char *fpath1, const char *fname1, const char *fname2, int fname2_len)
+ 
+ /*
+ * Search file
+ */
+ int search_file(const char *dpath, const char *fname);
