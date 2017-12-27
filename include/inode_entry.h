@@ -48,9 +48,9 @@ typedef struct single_indirect_block {
 /*
  * Inode Function prototypes
  */
-int query_inode (const inode_entey *inode_entry);
+int query_inode (const inode_entry *inode_entry);
 
-int update_inode (const inode_entey *inode_entey);
+int update_inode (const inode_entry *inode_entry);
 
 int create_inode (const inode_entry *inode_entry);
 
@@ -59,12 +59,12 @@ int delete_inode (const inode_entry *inode_entry);
 /*
  * File Function prototypes
  */
-int read_file (const inode_entey *inode_entry, void* file);
+int read_file (const inode_entry *inode_entry, void* file);
 
 // Delete files including inode
-int delete_file (const inode_entey *inode_entry);
+int delete_file (const inode_entry *inode_entry);
 
-int write_file (const inode_entey *inode_entry, void* file);
+int write_file (const inode_entry *inode_entry, void* file);
 
 
 
