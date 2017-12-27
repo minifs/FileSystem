@@ -10,11 +10,16 @@
 #include <time.h>
 #include <stdbool.h>
 #include "log.h"
+#include "block.h"
 
 #define BYTE_SIZE 8
 #define INODE_SIZE 128
 #define INODE_NUM 4096
 #define MAX_LAYER 10
+#define SUPERBLOCK_2_ID 1
+#define SINGLE_INDIRECT_BLOCK_SEQ 12
+
+
 
 /*
  * The directory entry & inode structure.
@@ -38,34 +43,62 @@ typedef struct superblock_2 {
     short block_unuse;
     short inode_used;
     short inode_unuse;
-    extern uint8_t inode_map[INODE_NUM/8];
+    uint8_t inode_map[INODE_NUM/8];
 } superblock_2;
 
 typedef struct single_indirect_block {
-    short num12[512];
+    short num12[BLOCK_SIZE / 8];
 } single_indirect_block;
 
+typedef struct inode_group {
+    inode inode_list[BLOCK_SIZE / INODE_SIZE];
+} inode_group; // inodes in a block
+
 /*
- * Inode Function prototypes
+ * Inode Function prototypes(Internal)
+ */
+
+int init_superblock();
+
+int init_inode(inode *inode_entry, size_t length);
+
+int set_inode_bitmap (int id);
+
+int clear_inode_bitmap (int id);
+
+int query_inode_bitmap (int id);
+
+int dump_inode_bitmap ();
+
+/*
+ * Inode Function prototypes(External)
  */
 int query_inode (inode *inode_entry);
 
-int update_inode (const inode *inode_entry);
+int update_inode (inode *inode_entry);
 
-int create_inode (const inode *inode_entry);
+int create_inode (inode *inode_entry);
 
-int delete_inode (const inode *inode_entry);
+int delete_inode (inode *inode_entry);
 
 /*
  * File Function prototypes
  */
-int read_file (const inode *inode_entry, void* file);
+int read_file (inode *inode_entry, void* file);
 
 // Delete files including inode
-int delete_file (const inode *inode_entry);
+int delete_file (inode *inode_entry);
 
-int write_file (const inode *inode_entry, void* file);
+int write_file (inode *inode_entry, void* file);
 
+/*
+ * Superblock Function prototypes
+ */
+int set_inode_bitmap (int id);
+
+int clear_inode_bitmap (int id);
+
+int query_inode_bitmap (int id);
 
 
 /*
