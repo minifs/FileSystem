@@ -14,7 +14,7 @@
 #define BYTE_SIZE 8
 #define INODE_SIZE 128
 #define INODE_NUM 4096
-
+#define MAX_LAYER 10
 
 /*
  * The directory entry & inode structure.
@@ -75,7 +75,7 @@ char* dir_init();
 
 char* dir_ls(const char *filename);
 
-bool dir_search(const char *filename);
+bool dir_search(const char *pwd, const char *foldername)
 
 bool dir_create(const char *filename);
 

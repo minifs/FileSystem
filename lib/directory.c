@@ -100,12 +100,12 @@ char* dir_ls(const char *filename)
     int i;
     ls_list=(char *)malloc(sizeof(char));
     inode_entries = (struct inode_entry*)malloc(INODE_NUM*sizeof(struct inode_entry));
-    struct inode_entry inode_entries[10];
+    struct inode_entry inode_entries[INODE_NUM];
     for(i=0; i<INODE_NUM; i++) {
         inode_entries[i] = Inode_Entry(i);
     }
     printf("%s\n", filename);
-    char *arr_filename[4];
+    char *arr_filename[32];
     char *token_filename=(char *)filename;
     int num_filename=0;
     num_filename = split_num(arr_filename, (char *)filename, "/", num_filename);
@@ -114,7 +114,7 @@ char* dir_ls(const char *filename)
         // Using strtok cut "/" , then save the token to array (filename+inode)
         // Using strcmp to compare every array value
         // Saving the value into ls_list
-        char *arr_entry[4];
+        char *arr_entry[MAX_LAYER];
         int num_entry=0;
         char *inode_entries_filename = inode_entries[i].filename;
         num_entry = split_num(arr_entry, inode_entries[i].filename, "/", num_entry);
@@ -167,5 +167,42 @@ char* dir_ls(const char *filename)
         }
     }
     return (char *)ls_list;
+}
+
+
+/*
+ * like find feature
+ * 1. Get the pwd + folder name together from CLI
+ * 2. get all the folder under current pwd from memory
+ * 3. compare the same filename
+ * 4. if there is the same folder name return "T" else return "F"
+ */
+bool dir_search(const char *pwd, const char *foldername)
+{
+    int i;
+    bool is_folder = false;
+    char *get_files;
+    char *pch;
+    inode_entries = (struct inode_entry*)malloc(INODE_NUM*sizeof(struct inode_entry));
+    struct inode_entry inode_entries[INODE_NUM];
+    for(i=0; i<INODE_NUM; i++) {
+        inode_entries[i] = Inode_Entry(i);
+    }
+    // get all the files from dir_ls
+    get_files=dir_ls(pwd);
+    // Compare the foldername and the get_files
+    // if the name is the same, than check the file_type is it 2
+    // if yes return true else return false
+    pch = strstr (get_files, foldername);
+    if (pch != NULL) {
+        printf("%s", pch);
+        for(i=0; i<INODE_NUM; i++) {
+            if (strcmp(pwd, inode_entries[i].filename)==0 && inode_entries[i].file_type==2) {
+                is_folder = true;
+                LOG_DEBUG("Finding foldername = %s\t, folder type is %d\t ", foldername, inode_entries[i].file_type);
+            }
+        }
+    }
+    return is_folder;
 }
 
