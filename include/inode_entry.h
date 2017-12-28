@@ -75,9 +75,9 @@ char* dir_init();
 
 char* dir_ls(const char *filename);
 
-bool dir_search(const char *pwd, const char *foldername)
+bool dir_search(const char *pwd, const char *foldername);
 
-bool dir_create(const char *filename);
+bool dir_create(const char *pwd, const char *foldername);
 
 /*
  * Ext2 directory file types.  Only the low 3 bits are used.  The
