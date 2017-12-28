@@ -22,10 +22,12 @@ const struct inode_entry* inode_entries;
 //inode_entry Inode_Entry(int i)
 inode Inode_Entry(int i)
 {
-    // Waiting for read_inode
+    // This is get the inode_entries data from inode function
+    // Waiting for query_inode function then rewrite
     inode_entries = (struct inode_entry*)malloc(INODE_NUM*sizeof(struct inode_entry));
     // For test
-    /*struct inode_entry inode_entries[10] = {
+    //inode_entries[i] = query_inode(inode_entry *inode_entry);
+    /*struct inode_entry inode_entries[INODE_NUM] = {
         {1, 850, 2, 4, "root"},
         {2, 10, 1, 13, "root/test1.md"},
         {3, 20, 1, 13, "root/test2.md"},
@@ -36,31 +38,20 @@ inode Inode_Entry(int i)
 }
 
 /*
- * read-in every inode_entry into memery
+ * Just get the init pwd value to CLI
  */
 char* dir_init()
 {
     char *init_pwd;
     int i;
     // preparing to cache inode_entry table in inode_entries
-    //struct inode_entry* inode_entries = (struct inode_entry*)malloc(INODE_NUM*sizeof(struct inode_entry));
-    inode_entries = (struct inode_entry*)malloc(INODE_NUM*sizeof(struct inode_entry));
-    assert(inode_entries != NULL);
     // read-in every inode into cache
     // Waiting for read_inode function
-    /*struct inode_entry inode_entries[10] = {
-        {1, 850, 2, 4, "root"},
-        {2, 10, 1, 13, "root/test1.md"},
-        {3, 20, 1, 13, "root/test2.md"},
-        {4, 68, 2, 12, "root/folder1"},
-        {5, 68, 1, 21, "root/folder1/test3.md"}
-    };*/
-
-    /*for(i=0; i<4096; i++) {
-        inode_entries[i];// = query_inode(inode_entry *inode_entry);
-    }*/
+    inode_entries = (struct inode_entry*)malloc(INODE_NUM*sizeof(struct inode_entry));
+    struct inode_entry inode_entries[INODE_NUM];
+    inode_entries[0] = Inode_Entry(0);
     init_pwd = inode_entries[0].filename;
-    printf("%s\n", inode_entries[0].filename);
+    //LOG_DEBUG("Init pwd: %s\n", inode_entries[0].filename);
     return (char *)init_pwd;
 }
 
@@ -204,5 +195,64 @@ bool dir_search(const char *pwd, const char *foldername)
         }
     }
     return is_folder;
+}
+
+
+/*
+ * Like mkdir to create the folder
+ * 1. Receive the filename(pwd+folder_name) from CLI
+ * 2. If the length > 32 return false
+ * 3. Save the filename & len into memory in array inode_entries[x]
+ * 4. Send inode_entries[x] to create_inode & Get the inode_id
+ *    (create_inode will save the inode_entries[x] into block)
+ * 5. Save the inode_id into inode_entries[x].inode_id
+ * 6. Return ture
+ */
+bool dir_create(const char *pwd, const char *foldername)
+{
+    bool is_created = false;
+    bool is_same = false;
+    int i;
+    char cfilename[32];
+    snprintf(cfilename, 32, "%s/%s", pwd, foldername);
+    size_t cfilenamelen = strlen(cfilename);
+
+    // Check the length of totallen (pwd + foldername)
+    size_t pwdlen = strlen(pwd);
+    size_t foldernamelen = strlen(foldername);
+    int totallen = pwdlen+foldernamelen;
+    if (totallen>32) {
+        return is_created;
+    }
+    // Check is there the same folder name
+    is_same = dir_search(pwd, foldername);
+    if (is_same==1) {
+        // If there is the same folder name, return can't create the folder
+        return is_created;
+    } else {
+        // Save the total filename & length into NULL array in structure: inode_entries[x] (save this in memory)
+        // After save the structure, then call the create_inode to get the inode_id
+        // After get the inode_id the program save the inode_id value in to inode_entries[x].inode_id
+        inode_entries = (struct inode_entry*)malloc(INODE_NUM*sizeof(struct inode_entry));
+        struct inode_entry inode_entries[INODE_NUM];
+        for(i=0; i<INODE_NUM; i++) {
+            size_t filename_len = strlen(inode_entries[i].filename);
+            inode_entries[i] = Inode_Entry(i);
+            if(filename_len<1) {
+                struct stat st;
+                stat(cfilename, &st);
+                snprintf(inode_entries[i].filename, 32, "%s", cfilename);
+                inode_entries[i].name_len = cfilenamelen;
+                inode_entries[i].file_type = 2;
+                inode_entries[i].filesize = st.st_size;
+                inode_entries[i].inode_id = create_inode(inode_entries[i]);
+                if(inode_entries[i].inode_id!=0) {
+                    LOG_DEBUG("Create a foldername = %s\t, folder type is %d\t ", inode_entries[i].filename, inode_entries[i].file_type);
+                    is_created = true;
+                }
+                return is_created;
+            }
+        }
+    }
 }
 
