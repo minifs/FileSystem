@@ -33,14 +33,14 @@ int delete_file_by_path(const char *path);
 /*
  * Create file
  */
- int create_file(const char *dpath, int fname_len);
+ int create_file(const char *pwd, const char *fname);
  
  /*
  * Rename file
  */
- int rename_file(const char *fpath1, const char *fname1, const char *fname2, int fname2_len)
+int rename_file(const char *pwd, const char *fname1, const char *fname2);
  
  /*
  * Search file
  */
- int search_file(const char *dpath, const char *fname);
+int search_file(const char *pwd, const char *fname);
