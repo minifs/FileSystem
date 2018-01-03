@@ -256,3 +256,94 @@ bool dir_create(const char *pwd, const char *foldername)
     }
 }
 
+
+/*
+ *dir_rename: mv foldername newname,
+ *success return 1, failed return 0
+ */
+bool dir_rename(const char *pwd, const char *foldername, const char *newname)
+{
+    int i;
+    char str[1000];
+    sprintf(str, "%s/%s", pwd, newname);
+    //check length too long or not
+    if(strlen(str)>32){
+        return false;
+    }
+    //check name the same or not
+    if(dir_search(pwd, newname)){
+        return false;
+    }
+    char filename[32];
+    sprintf(filename, "%s/%s", pwd, foldername);
+    inode_entry inode_entries[INODE_NUM];
+    //look for origin directory
+    for(i=0; i<INODE_NUM; i++) {
+        inode_entries[i] = Inode_Entry(i);
+        if(strcmp(inode_entries[i].filename, filename)==0){
+            if(inode_entries[i].file_type==2){
+                //change filename and length
+                strcpy(inode_entries[i].filename, str);
+                inode_entries[i].name_len = strlen(str);
+                //write back to inode layer
+                /*call update_inode*/
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+/*
+ *dir_change: cd foldername
+ *destination = pwd/foldername
+ *success return 1, failed return 0
+ */
+bool dir_change(const char* destination)
+{
+    int i;
+    inode_entry inode_entries[INODE_NUM];
+    //look for destination directory
+    for(i=0; i<INODE_NUM; i++){
+        inode_entries[i] = Inode_Entry(i);
+        if(strcmp(inode_entries[i].filename, destination)==0){
+            //check directory type
+            if(inode_entries[i].file_type==2){
+                return 1;
+            }
+        } 
+    }
+    return 0;
+}
+
+/*
+ *dir_delete: rmdir foldername
+ *can only delete empty directory
+ *success return 1, failed return 0
+ */
+bool dir_delete(const char *pwd, const char *foldername)
+{
+    int i;
+    char str[1000];
+    sprintf(str, "%s/%s", pwd, foldername);
+    inode_entry inode_entries[INODE_NUM];
+    //look for directory user want to delete
+    for(i=0; i<INODE_NUM; i++){
+        inode_entries[i] = Inode_Entry(i);
+        if(strcmp(inode_entries[i].filename, str)==0){
+            //check directory type
+            if(inode_entries[i].file_type == 2){
+                char *list = 0;
+                //check directory is empty or not
+                list = dir_ls(str);   /*wait to change*/
+                if(strlen(list)>0){
+                    return 0;
+                } else{
+                    /*call delete_inode*/
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
