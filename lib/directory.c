@@ -287,6 +287,9 @@ bool dir_rename(const char *pwd, const char *foldername, const char *newname)
                 inode_entries[i].name_len = strlen(str);
                 //write back to inode layer
                 /*call update_inode*/
+                if (update_inode(&inode_entries[i]) != 0) {
+                    return 0;
+                }
                 return 1;
             }
         }
@@ -340,6 +343,9 @@ bool dir_delete(const char *pwd, const char *foldername)
                     return 0;
                 } else {
                     /*call delete_inode*/
+                    if (delete_inode(&inode_entries[i]) != 0) {
+                        return 0;
+                    }
                     return 1;
                 }
             }
