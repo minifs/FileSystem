@@ -79,6 +79,12 @@ bool dir_search(const char *pwd, const char *foldername);
 
 bool dir_create(const char *pwd, const char *foldername);
 
+bool dir_rename(const char *pwd, const char *foldername, const char *newname);
+
+bool dir_change(const char* destination);
+
+bool dir_delete(const char *pwd, const char *foldername);
+
 /*
  * Ext2 directory file types.  Only the low 3 bits are used.  The
  * other bits are reserved for now.
