@@ -86,6 +86,11 @@ bool dir_change(const char* destination);
 bool dir_delete(const char *pwd, const char *foldername);
 
 /*
+ * Inode table Function prototypes
+ */
+int insert_inode_into_table(inode* node);
+int delete_inode_from_table(inode* node);
+/*
  * Ext2 directory file types.  Only the low 3 bits are used.  The
  * other bits are reserved for now.
  */
