@@ -55,7 +55,7 @@ int insert_inode_into_table(inode* node)
 {
     int i;
     for(i=0; i<INODE_SIZE; i++) {
-        if( Inode_Entry(i)->inode_id = -1 ) {
+        if( Inode_Entry(i)->inode_id == -1 ) {
             free(Inode_Entry(i));
             inode_entries[i] = node;
 
@@ -78,6 +78,24 @@ int delete_inode_from_table(inode* node)
     }
 
     return -1;
+}
+
+inode* get_inode_from_path(char *path)
+{
+    int i;
+    for(i=0; i<INODE_SIZE; i++) {
+        inode* node = Inode_Entry(i);
+
+        if(node->inode_id == -1) {
+            continue;
+        }
+
+        if(strcmp(node->filename, path)==0) {
+            return node;
+        }
+    }
+
+    return NULL;
 }
 
 void split_token(char **arr, char *str, const char *token, int num_entry)
