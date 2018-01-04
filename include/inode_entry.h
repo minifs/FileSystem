@@ -90,6 +90,8 @@ bool dir_delete(const char *pwd, const char *foldername);
  */
 int insert_inode_into_table(inode* node);
 int delete_inode_from_table(inode* node);
+inode* get_inode_from_path(char *path);
+
 /*
  * Ext2 directory file types.  Only the low 3 bits are used.  The
  * other bits are reserved for now.
