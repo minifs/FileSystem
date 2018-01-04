@@ -48,23 +48,23 @@ typedef struct single_indirect_block {
 /*
  * Inode Function prototypes
  */
-int query_inode (const inode_entry *inode_entry);
+int query_inode (inode *inode_entry);
 
-int update_inode (const inode_entry *inode_entry);
+int update_inode (const inode *inode_entry);
 
-int create_inode (const inode_entry *inode_entry);
+int create_inode (const inode *inode_entry);
 
-int delete_inode (const inode_entry *inode_entry);
+int delete_inode (const inode *inode_entry);
 
 /*
  * File Function prototypes
  */
-int read_file (const inode_entry *inode_entry, void* file);
+int read_file (const inode *inode_entry, void* file);
 
 // Delete files including inode
-int delete_file (const inode_entry *inode_entry);
+int delete_file (const inode *inode_entry);
 
-int write_file (const inode_entry *inode_entry, void* file);
+int write_file (const inode *inode_entry, void* file);
 
 
 
@@ -90,7 +90,7 @@ bool dir_delete(const char *pwd, const char *foldername);
  */
 int insert_inode_into_table(inode* node);
 int delete_inode_from_table(inode* node);
-inode* get_inode_from_path(char *path);
+inode* get_inode_from_path(const char *path);
 
 /*
  * Ext2 directory file types.  Only the low 3 bits are used.  The
