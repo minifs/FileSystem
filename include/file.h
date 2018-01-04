@@ -44,3 +44,5 @@ int rename_file(const char *pwd, const char *fname1, const char *fname2);
  * Search file
  */
 int search_file(const char *pwd, const char *fname);
+
+#endif
