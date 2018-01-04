@@ -70,8 +70,17 @@ int delete_inode_from_table(inode* node)
 {
     int i;
     for(i=0; i<INODE_SIZE; i++) {
-        if( Inode_Entry(i)->inode_id == node->inode_id ) {
-            Inode_Entry(i)->inode_id = -1;
+	inode *n = Inode_Entry(i);
+        if( n->inode_id == node->inode_id ) {
+            n->inode_id = -1;
+	    n->filesize = 0;
+	    n->uid = 0;
+	    n->gid = 0;
+	    n->filemode = 0;
+	    n->timestamp = 0;
+	    n->file_type = 0;
+	    n->name_len = 0;
+	    sprintf(n->filename, " ");
 
             return 0;
         }
