@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include "inode_entry.h"
-const struct inode_entry* inode_entries;
+inode* inode_entries[INODE_SIZE];
 /*typedef struct inode_entry {
     short inode_id;
     int filesize;
@@ -19,21 +19,11 @@ const struct inode_entry* inode_entries;
     char filename[32];
 } inode_entry;*/
 
-//inode_entry Inode_Entry(int i)
-inode Inode_Entry(int i)
+inode* Inode_Entry(int i)
 {
-    // This is get the inode_entries data from inode function
-    // Waiting for query_inode function then rewrite
-    inode_entries = (struct inode_entry*)malloc(INODE_NUM * sizeof(struct inode_entry));
-    // For test
-    //inode_entries[i] = query_inode(inode_entry *inode_entry);
-    /*struct inode_entry inode_entries[INODE_NUM] = {
-        {1, 850, 2, 4, "root"},
-        {2, 10, 1, 13, "root/test1.md"},
-        {3, 20, 1, 13, "root/test2.md"},
-        {4, 68, 2, 12, "root/folder1"},
-        {5, 68, 1, 21, "root/folder1/test3.md"}
-    };*/
+    if( i<0 || i>=INODE_SIZE )
+        return NULL;
+
     return inode_entries[i];
 }
 
@@ -43,16 +33,51 @@ inode Inode_Entry(int i)
 char* dir_init()
 {
     char *init_pwd;
-    int i;
+    int result;
+    short i;
     // preparing to cache inode_entry table in inode_entries
     // read-in every inode into cache
     // Waiting for read_inode function
-    inode_entries = (struct inode_entry*)malloc(INODE_NUM * sizeof(struct inode_entry));
-    struct inode_entry inode_entries[INODE_NUM];
-    inode_entries[0] = Inode_Entry(0);
-    init_pwd = inode_entries[0].filename;
-    //LOG_DEBUG("Init pwd: %s\n", inode_entries[0].filename);
-    return (char *)init_pwd;
+    for(i=0; i<INODE_SIZE; i++) {
+        inode* tmp = (inode*)malloc(sizeof(inode));
+        tmp->inode_id = i;
+
+        result = query_inode(tmp);
+        if( result<0 )
+            tmp->inode_id = -1; // empty inode
+        inode_entries[i] = tmp;
+    }
+    init_pwd = Inode_Entry(0)->filename;
+    return init_pwd;
+}
+
+int insert_inode_into_table(inode* node)
+{
+    int i;
+    for(i=0; i<INODE_SIZE; i++) {
+        if( Inode_Entry(i)->inode_id = -1 ) {
+            free(Inode_Entry(i));
+            inode_entries[i] = node;
+
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+int delete_inode_from_table(inode* node)
+{
+    int i;
+    for(i=0; i<INODE_SIZE; i++) {
+        if( Inode_Entry(i)->inode_id == node->inode_id ) {
+            Inode_Entry(i)->inode_id = -1;
+
+            return 0;
+        }
+    }
+
+    return -1;
 }
 
 void split_token(char **arr, char *str, const char *token, int num_entry)
