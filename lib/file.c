@@ -167,7 +167,11 @@ int create_file(const char *pwd, const char *fname)
     if(totallen>32) return -1; //illegal length
 
     char cfilename[32];
-    snprintf(cfilename, 32, "%s/%s", pwd, fname);
+	if (strcmp(pwd, "/") == 0) {
+        snprintf(cfilename, 32, "/%s", fname);
+    } else {
+        snprintf(cfilename, 32, "%s/%s", pwd, fname);
+    }
 
     if(search_file(cfilename)==0) {
         return -2;//file exist
