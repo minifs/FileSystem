@@ -172,6 +172,8 @@ int update_inode (inode *inode_entry)
 
     LOG_DEBUG("Return: %d\n", ret);
 
+    dump_inode(inode_entry);
+
     return 0;
 }
 
