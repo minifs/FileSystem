@@ -165,10 +165,10 @@ int update_inode (inode *inode_entry)
 
     LOG_DEBUG("Size of inode_group: %d.\n", (int)(sizeof(inode_group)));
 
-    
+
     // write whole inode_block back
     ret = modify_block( inode_block_id, &inode_group, (int)(sizeof(inode_group)) );
-    
+
 
     LOG_DEBUG("Return: %d\n", ret);
 
@@ -187,11 +187,10 @@ int create_inode (inode *inode_entry)
     inode_entry->gid = 0;
     inode_entry->filemode = 664;
     inode_entry->timestamp = time(NULL);
-    for(i = 0; i < 15; i++)
-    {
+    for(i = 0; i < 15; i++) {
         inode_entry->num[i] = 0;
     }
-    
+
     // assign inode_id and set bitmap up
     i = 0;
     while (1) {

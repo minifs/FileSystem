@@ -99,21 +99,21 @@ int create_filesystem(const char *path)
             LOG_WARN("File state returns something bad, the details: %s\n", strerror(errno));
             return -2;
         }
-	
-//	uint8_t tmp[BLOCK_SIZE] = {0};	
-	long i;
 
-	//LOG_DEBUG("TOTAL_NUMBER_OF_BYTES = %d\n", TOTAL_NUMBER_OF_BYTES);
-	//for(i = 0; i < 10; i++){
-	//	write(file_state, tmp, BLOCK_SIZE);
-	//}
-        
+//	uint8_t tmp[BLOCK_SIZE] = {0};
+        long i;
+
+        //LOG_DEBUG("TOTAL_NUMBER_OF_BYTES = %d\n", TOTAL_NUMBER_OF_BYTES);
+        //for(i = 0; i < 10; i++){
+        //	write(file_state, tmp, BLOCK_SIZE);
+        //}
+
 //	if(lseek(file_state, 0, SEEK_SET) < 0){//set cursor to initial point
 //		LOG_WARN("Fail to move to start point\n");
 //		return -3;
 //	}
 
-	write(file_state, FILE_SYSTEM_HEADER, strlen(FILE_SYSTEM_HEADER));
+        write(file_state, FILE_SYSTEM_HEADER, strlen(FILE_SYSTEM_HEADER));
         snprintf(file_system_path, 100, "%s", path);
 
         for(i = 0; i <= 513; i++) {
@@ -340,7 +340,7 @@ int read_block(const int block_ID, void *block)
     LOG_DEBUG("file_system_path = %s, blockID = %d\n", file_system_path, block_ID);
     if(file_state > 0) {
         if((file_state = open(file_system_path, O_RDWR)) < 0) {
-	    LOG_DEBUG("file_state = %d\n", file_state);
+            LOG_DEBUG("file_state = %d\n", file_state);
             LOG_WARN("File system %s does not exist, please call create_block first\n", file_system_path);
             return -1;
         }
@@ -356,7 +356,7 @@ int read_block(const int block_ID, void *block)
         }
         char tmp[BLOCK_SIZE] = {0};
         if((byte_read = read(file_state, tmp, BLOCK_SIZE)) != BLOCK_SIZE) {
-	    LOG_DEBUG("file_state = %d, byte_read = %d\n", file_state, byte_read);
+            LOG_DEBUG("file_state = %d, byte_read = %d\n", file_state, byte_read);
             LOG_WARN("Fail to read: %s\n", strerror(errno));
             return -4;
         }

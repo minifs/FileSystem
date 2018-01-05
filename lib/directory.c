@@ -54,11 +54,11 @@ char* dir_init()
         if ( result < 0 )
             tmp->inode_id = -1; // empty inode
         inode_entries[i] = tmp;
-        if (tmp->filename != NULL && strcmp(tmp->filename, "/")==0){
+        if (tmp->filename != NULL && strcmp(tmp->filename, "/")==0) {
             flag=1;
         }
     }
-    if (flag==0){
+    if (flag==0) {
         snprintf(inode_entries[0]->filename, 32, "/");
         inode_entries[0]->name_len = 1;
         inode_entries[0]->file_type = 2;
@@ -120,8 +120,8 @@ inode* get_inode_from_path(const char *path)
         }
 
         if (strcmp(node->filename, path) == 0) {
-            if(node->file_type == 1){
-                return node;    
+            if(node->file_type == 1) {
+                return node;
             }
         }
     }
