@@ -16,7 +16,6 @@ int init_superblock()
     memset (&superblock_inode, 0,  sizeof(superblock_inode));
     // load superblock_2(block 1) from disk
     read_block(SUPERBLOCK_2_ID, &superblock_inode);
-    dump_inode_bitmap();
     return 0;
 }
 
