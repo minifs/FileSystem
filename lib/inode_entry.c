@@ -187,7 +187,7 @@ int create_inode (inode *inode_entry)
     inode_entry->gid = 0;
     inode_entry->filemode = 664;
     inode_entry->timestamp = time(NULL);
-    for(i = 0; i < 14; i++)
+    for(i = 0; i < 15; i++)
     {
         inode_entry->num[i] = 0;
     }
