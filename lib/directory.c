@@ -107,31 +107,10 @@ inode* get_inode_from_path(const char *path)
     return NULL;
 }
 
-void split_token(char **arr, char *str, const char *token, int num_entry)
-{
-    char *s = strtok(str, token);
-    while (s != NULL) {
-        *arr++ = s;
-        s = strtok(NULL, token);
-        num_entry++;
-    }
-}
-
-int split_num(char **arr, char *str, const char *token, int num_entry)
-{
-    char *s = strtok(str, token);
-    while (s != NULL) {
-        num_entry++;
-        *arr++ = s;
-        s = strtok(NULL, token);
-    }
-    return num_entry;
-}
-
 /*
- * Get filename from CLI
- * (We don't have this iterm) Check this file type is DIR, if not, return "This is not Dirctory" string
- * Get the files under the filename, then return the string.
+ *dir_rename: ls filename,
+ *please declare a char ls_list[500] as input, after the function call, ls_list will have ls result.
+ *success return 0, failed return -1
  */
 int dir_ls(char* ls_list, const char *filename)
 {
@@ -145,7 +124,7 @@ int dir_ls(char* ls_list, const char *filename)
         if (strncmp(node->filename, filename, strlen(filename)) == 0) {
             return_flag = 0;
             char buf[100], *value, *name;
-            if(strcmp(filename, "/")==0)
+            if (strcmp(filename, "/") == 0)
                 value = strdup(node->filename + (strlen(filename)));
             else
                 value = strdup(node->filename + (strlen(filename) + 1));
@@ -280,38 +259,44 @@ bool dir_create(const char *pwd, const char *foldername)
 
 /*
  *dir_rename: mv foldername newname,
- *success return 1, failed return 0
+ *success return 0, failed return -1
  */
-bool dir_rename(const char *pwd, const char *foldername, const char *newname)
+int dir_rename(const char *pwd, const char *foldername, const char *newname)
 {
-    // printf("dir_rename in\n");
     int i;
     char str[1000];
-    sprintf(str, "%s/%s", pwd, newname);
-    //check filename length too long or not
+    if (strcmp(pwd, "/") == 0)
+        sprintf(str, "/%s", newname);
+    else
+        sprintf(str, "%s/%s", pwd, newname);
+    //check length too long or not
     if (strlen(str) > 32) {
-        return false;
+        return -1;
     }
     //check name the same or not
-    if (dir_search(pwd, newname)) {
-        return false;
+    if (dir_search(pwd, newname) == 0) {
+        return -1;
     }
     char filename[32];
-    sprintf(filename, "%s/%s", pwd, foldername);
-    //look for origin directory & file inside
+    if (strcmp(pwd, "/") == 0)
+        sprintf(filename, "/%s", foldername);
+    else
+        sprintf(filename, "%s/%s", pwd, foldername);
+
     inode* node[INODE_NUM];
     for (i = 0; i < INODE_NUM; i++) {
         node[i] = Inode_Entry(i);
         if (strncmp(node[i]->filename, filename, strlen(filename)) == 0) {
             char *value;
             value = strdup(node[i]->filename + (strlen(filename) + 1));
-            //check filename length too long or not
             if ((strlen(str) + strlen(value)) > 32)
-                return false;
+                return -1;
         }
     }
-
+    //look for origin directory
     for (i = 0; i < INODE_NUM; i++) {
+        // printf("loop in\n");
+        // printf("get inode\n");
         if (strncmp(node[i]->filename, filename, strlen(filename)) == 0) {
             char *val;
             val = strdup(node[i]->filename + (strlen(filename) + 1));
@@ -322,9 +307,9 @@ bool dir_rename(const char *pwd, const char *foldername, const char *newname)
                 sprintf(node[i]->filename, "%s/%s", str, val);
                 node[i]->name_len = strlen(str) + strlen(val);
                 /*call update_inode*/
-                int result;
+                /*int result;
                 result = update_inode(node[i]);
-                LOG_DEBUG("update_inode return value in dir_rename: %d", result);
+                LOG_DEBUG("update_inode return value in dir_rename: %d", result);*/
             } else {
                 strcpy(node[i]->filename, str);
                 node[i]->name_len = strlen(str);
@@ -337,15 +322,15 @@ bool dir_rename(const char *pwd, const char *foldername, const char *newname)
 
         }
     }
-    return 1;
+    return 0;
 }
 
 /*
  *dir_change: cd foldername
  *destination = pwd/foldername
- *success return 1, failed return 0
+ *success return 0, failed return -1
  */
-bool dir_change(const char* destination)
+int dir_change(const char* destination)
 {
     int i;
     // inode_entry inode_entries[INODE_NUM];
@@ -355,23 +340,27 @@ bool dir_change(const char* destination)
         if (strcmp(node->filename, destination) == 0) {
             //check directory type
             if (node->file_type == 2) {
-                return 1;
+                return 0;
             }
         }
     }
-    return 0;
+    return -1;
 }
 
 /*
  *dir_delete: rmdir foldername
  *can only delete empty directory
- *success return 1, failed return 0
+ *success return 0, failed return -1
  */
-bool dir_delete(const char *pwd, const char *foldername)
+int dir_delete(const char *pwd, const char *foldername)
 {
     int i;
     char str[1000];
-    sprintf(str, "%s/%s", pwd, foldername);
+    if (strcmp(pwd, "/") == 0)
+        sprintf(str, "/%s", foldername);
+    else
+        sprintf(str, "%s/%s", pwd, foldername);
+
     // inode_entry inode_entries[INODE_NUM];
     //look for directory user want to delete
     for (i = 0; i < INODE_NUM; i++) {
@@ -381,20 +370,22 @@ bool dir_delete(const char *pwd, const char *foldername)
             if (node->file_type == 2) {
                 char list[500];
                 //check directory is empty or not
-                list = dir_ls(str);   /*wait to change*/
+                dir_ls(list, str);   /*wait to change*/
                 if (strlen(list) > 0) {
-                    return 0;
+                    return -1;
                 } else {
                     sprintf(node->filename, "");
                     node->name_len = 0;
+                    node->file_type = 0;
+                    node->inode_id = 0;
                     /*call delete_inode*/
                     int result;
                     result = delete_inode(node);
                     LOG_DEBUG("delete_inode return value in dir_delete: %d", result);
-                    return 1;
+                    return 0;
                 }
             }
         }
     }
-    return 0;
+    return -1;
 }
