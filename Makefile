@@ -36,5 +36,5 @@ ${EXE_NAME}:${OBJ_FILES}
 ${OBJ_FILES}: %.o : %.c
 	${CXX} ${CXXFLAGS} -c ${INC} $< -o $@ ${LDFLAGS} ${DEBUG_FLAG}
 clean:
-	rm -rf ${OBJ_FILES} ${EXE_NAME} filesystem.txt
+	rm -rf ${OBJ_FILES} ${EXE_NAME} filesystem.txt mini-FileSystem Filesystem.log 
 
