@@ -1,10 +1,10 @@
-#include "block.h"
-#include "inode_entry.h"
-#include "file.h"
+#include"block.h"
+#include"inode_entry.h"
+#include"file.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include<stdlib.h>
+#include<stdio.h>
+#include<string.h>
 
 /*
  * Read the entire file

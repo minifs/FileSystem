@@ -156,7 +156,7 @@ int dir_ls(char* ls_list, const char *filename)
  * 3. compare the same filename
  * 4. if there is the same folder name return "T" else return "F"
  */
-bool dir_search(const char *pwd, const char *foldername)
+int dir_search(const char *pwd, const char *foldername)
 {
     int i;
     bool is_folder = false;
@@ -196,7 +196,7 @@ bool dir_search(const char *pwd, const char *foldername)
  * 5. Save the inode_id into inode_entries[x].inode_id
  * 6. Return ture
  */
-bool dir_create(const char *pwd, const char *foldername)
+int dir_create(const char *pwd, const char *foldername)
 {
     bool is_created = false;
     bool is_same = false;

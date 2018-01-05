@@ -36,7 +36,7 @@ int set_inode_bitmap (int id)
     superblock_inode.inode_map[id>>3] |= 1ULL << (id%BYTE_SIZE);
 
     // Save Superblock_2
-    modify_block(SUPERBLOCK_2_ID, &superblock_inode, int(sizeof (superblock_inode)));
+    modify_block(SUPERBLOCK_2_ID, &superblock_inode, (int)(sizeof (superblock_inode)));
 
     return 0;
 }
@@ -46,7 +46,7 @@ int clear_inode_bitmap (int id)
     superblock_inode.inode_map[id>>3] &= ~(1ULL << (id%BYTE_SIZE));
 
     // Save Superblock_2
-    modify_block(SUPERBLOCK_2_ID, &superblock_inode, int(sizeof (superblock_inode)));
+    modify_block(SUPERBLOCK_2_ID, &superblock_inode, (int)(sizeof (superblock_inode)));
 
     return 0;
 }
@@ -162,7 +162,7 @@ int update_inode (inode *inode_entry)
     inode_group.inode_list[inode_block_seq] = *inode_entry;
 
     // write whole inode_block back
-    modify_block( inode_block_id, &inode_group, int(sizeof(inode_group)) );
+    modify_block( inode_block_id, &inode_group, (int)(sizeof(inode_group)) );
 
     return 0;
 }
@@ -193,7 +193,7 @@ int create_inode (inode *inode_entry)
     }
 
     // save superblock to disk
-    modify_block(SUPERBLOCK_2_ID, &superblock_inode, int(sizeof (superblock_inode)));
+    modify_block(SUPERBLOCK_2_ID, &superblock_inode, (int)(sizeof (superblock_inode)));
 
     // save inode to block, and write block
     update_inode(inode_entry);
@@ -403,9 +403,9 @@ int write_file (inode *inode_entry, void* file)
 
         // save indirect block map
         if(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] != 0) {
-            modify_block(inode_entry->num[12], &single_indirect_block, int(sizeof(single_indirect_block)));
+            modify_block(inode_entry->num[12], &single_indirect_block, (int)(sizeof(single_indirect_block)));
         } else {
-            write_block(&block_id_buf, &single_indirect_block, int(sizeof(single_indirect_block)));
+            write_block(&block_id_buf, &single_indirect_block, (int)(sizeof(single_indirect_block)));
             inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] = block_id_buf;
         }
     } else if(block_inuse > inode_entry->filesize / BLOCK_SIZE + 1) {	// block num will decrease
@@ -444,9 +444,9 @@ int write_file (inode *inode_entry, void* file)
             inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] = 0;
         } else { // save indirect block into disk
             if(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] != 0) { // there exist a indirect block
-                modify_block(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ], &single_indirect_block, int(sizeof(single_indirect_block)));
+                modify_block(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ], &single_indirect_block, (int)(sizeof(single_indirect_block)));
             } else { // there doesnt exist a indirect block
-                write_block(&block_id_buf, &single_indirect_block, int(sizeof(single_indirect_block)));
+                write_block(&block_id_buf, &single_indirect_block, (int)(sizeof(single_indirect_block)));
                 inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] = block_id_buf;
             }
         }
