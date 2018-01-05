@@ -22,18 +22,18 @@ void funclog (const char *format,... )
     if(LOG_TARGET == WRITE_TO_FILE) {
         FILE *fp;
         fp = fopen(LOG_PATH,"a");
-	fprintf(fp, "%s -- ", time_output);
+        fprintf(fp, "%s -- ", time_output);
         vfprintf(fp, format, args_vfprintf);
         fclose(fp);
     } else if(LOG_TARGET == WRITE_TO_CONSOLE) {
-	printf("%s -- ", time_output);
+        printf("%s -- ", time_output);
         vprintf(format, args_vprintf);//print information on console
     } else {
         FILE *fp;
         fp = fopen(LOG_PATH, "a");
-	fprintf(fp, "%s -- ", time_output);
+        fprintf(fp, "%s -- ", time_output);
         vfprintf(fp, format, args_vfprintf);
-	printf("%s -- ", time_output);
+        printf("%s -- ", time_output);
         vprintf(format, args_vprintf);
         fclose(fp);
     }
