@@ -24,7 +24,7 @@ void funclog (const char *format,... );
 #define WRITE_TO_BOTH 0x02
 
 #ifndef LOG_TARGET
-#define LOG_TARGET WRITE_TO_BOTH
+#define LOG_TARGET WRITE_TO_FILE
 #define LOG_PATH "Filesystem.log"
 #endif
 
