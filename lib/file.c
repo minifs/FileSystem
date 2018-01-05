@@ -191,7 +191,7 @@ int create_file(const char *pwd, const char *fname)
 
 /***rename_file tested***/
 /***(only update inode in memory)***/
-/***return 0:success , -1:fname2 illegel length***/
+/***return 0:success , -1:fname2 illegel length , -2:fpath2 exist***/
 int rename_file(const char *pwd, const char *fname1, const char *fname2)
 {
 
@@ -208,7 +208,7 @@ int rename_file(const char *pwd, const char *fname1, const char *fname2)
     snprintf(cfilename2, 32, "%s/%s", pwd, fname2);
 
     if(search_file(cfilename2)==0) {
-        return -1;//file exist
+        return -2;//file exist
     }
 
     inode_ptr = get_inode_from_path(cfilename1);
