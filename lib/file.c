@@ -214,9 +214,17 @@ int rename_file(const char *pwd, const char *fname1, const char *fname2)
     if(totallen>32) return -1; //illegal length
 
     char cfilename1[32];
-    snprintf(cfilename1, 32, "%s/%s", pwd, fname1);
+	if (strcmp(pwd, "/") == 0) {
+        snprintf(cfilename1, 32, "/%s", fname1);
+    } else {
+        snprintf(cfilename1, 32, "%s/%s", pwd, fname1);
+    }
     char cfilename2[32];
-    snprintf(cfilename2, 32, "%s/%s", pwd, fname2);
+	if (strcmp(pwd, "/") == 0) {
+        snprintf(cfilename2, 32, "/%s", fname2);
+    } else {
+        snprintf(cfilename2, 32, "%s/%s", pwd, fname2);
+    }
 
     if(search_file(cfilename2)==0) {
         return -2;//file exist
