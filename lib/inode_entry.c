@@ -146,22 +146,31 @@ int query_inode (inode *inode_entry)
 
 int update_inode (inode *inode_entry)
 {
+    int ret;
+
     // get block id
-    int inode_block_id = inode_entry->inode_id / (BLOCK_SIZE / INODE_SIZE) + 1;
+    int inode_block_id = inode_entry->inode_id / (BLOCK_SIZE / INODE_SIZE) + 2;
+    LOG_DEBUG("1. inode_block_id: %d, inode_id: %d\n", inode_block_id, inode_entry->inode_id);
 
     // get the seq in inode_group (0~7)
     int inode_block_seq = inode_entry->inode_id % (BLOCK_SIZE / INODE_SIZE);
 
     inode_group inode_group;
-
+    LOG_DEBUG("2. inode_block_id: %d, inode_id: %d\n", inode_block_id, inode_entry->inode_id);
     // load whole inode_block
-    read_block (inode_entry->inode_id, &inode_group);
-
+    read_block (inode_block_id, &inode_group);
+    LOG_DEBUG("3. inode_block_id: %d, inode_id: %d\n", inode_block_id, inode_entry->inode_id);
     // memory copy to right place
     inode_group.inode_list[inode_block_seq] = *inode_entry;
 
+    LOG_DEBUG("Size of inode_group: %d.\n", (int)(sizeof(inode_group)));
+
+    
     // write whole inode_block back
-    modify_block( inode_block_id, &inode_group, (int)(sizeof(inode_group)) );
+    ret = modify_block( inode_block_id, &inode_group, (int)(sizeof(inode_group)) );
+    
+
+    LOG_DEBUG("Return: %d\n", ret);
 
     return 0;
 }
@@ -170,6 +179,7 @@ int create_inode (inode *inode_entry)
 {
     int i = 0;
     int target_id;
+    int block_ret;
 
     inode_entry->uid = 0;
     inode_entry->gid = 0;

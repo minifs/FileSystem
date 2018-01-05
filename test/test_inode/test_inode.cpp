@@ -8,10 +8,14 @@ int main ()
     init_superblock();
     //dump_inode_bitmap();
     
-    char test_file[100] = "The quick brown fox jumps over the lazy dog\0";
-    char read_file_buf[200] ;
+    //char test_file[100] = "The quick brown fox jumps over the lazy dog\0";
+    // char test_bigfile[2000];
+    // char read_file_buf[2000];
 
-    memset(read_file_buf, 0, 200);
+    // memset(test_bigfile, 88, 2000);
+    // test_bigfile[1999] = '\0';
+
+    // memset(read_file_buf, 0, 2000);
 
     /*
     // ------ bitmap test ------
@@ -61,12 +65,15 @@ int main ()
     // printf("------------------------\n\n");
 
     // ------ Write Test ------
-    test_inode_entry_1.filesize = int(sizeof(test_file));
-    write_file(&test_inode_entry_1, test_file);
-    dump_inode(&test_inode_entry_1);
+    // test_inode_entry_1.filesize = int(sizeof(test_bigfile));
+    // write_file(&test_inode_entry_1, test_bigfile);
+    // dump_inode(&test_inode_entry_1);
 
-    read_file(&test_inode_entry_1, (void *)read_file_buf);
-    printf("read result: %s\n", read_file_buf);
+    // read_file(&test_inode_entry_1, (void *)read_file_buf);
+    // printf("read result: %s\n", read_file_buf);
+
+    // delete_file(&test_inode_entry_1);
+    // dump_inode_bitmap();
 
     return 0;
 }
