@@ -3,6 +3,7 @@ EXE_NAME = TEST_INODE_EXE
 
 CXXFLAGS += -Wall
 CXXFLAGS += -g
+CXXFLAGS += -fno-stack-protector
 
 LDFLAGS += -lgtest_main 
 LDFLAGS += -lgtest 
