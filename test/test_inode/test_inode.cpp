@@ -53,7 +53,7 @@ int main ()
     inode_entry test_inode_entry_1;
     init_inode(&test_inode_entry_1, sizeof(test_inode_entry_1));
     create_inode(&test_inode_entry_1);
-    dump_inode(&test_inode_entry_1);
+    //dump_inode(&test_inode_entry_1);
 
     // inode_entry test_inode_entry_2;
     // create_inode(&test_inode_entry_2);
