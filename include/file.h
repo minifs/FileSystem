@@ -48,6 +48,6 @@ int search_file(const char *fpath);
 /*
 * Get next empty index
 */
-int search_empty(void)
+int search_empty(void);
 
 #endif
