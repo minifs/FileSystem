@@ -32,6 +32,8 @@ inode* Inode_Entry(int i)
  */
 char* dir_init()
 {
+    init_superblock();
+    memset(inode_entries, '\0', sizeof(inode_entries));
     LOG_DEBUG("init_pwd");
     char *init_pwd;
     int result;
@@ -44,6 +46,7 @@ char* dir_init()
         inode* tmp = (inode*)malloc(sizeof(inode));
         tmp->inode_id = i;
 
+        memset(tmp, '\0', sizeof(tmp));
         result = query_inode(tmp);
         if ( result < 0 )
             tmp->inode_id = -1; // empty inode
