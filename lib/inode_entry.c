@@ -125,7 +125,7 @@ int query_inode (inode *inode_entry)
     inode_group inode_group;
 
     // check if inode exist in bitmap
-    if(!query_inode_bitmap) {
+    if(!query_inode_bitmap（inode_entry->inode_id）) {
         LOG_ERROR("inode_id:%d doesn't exist in inode bitmap\n", inode_entry->inode_id);
         return -1;
     }
