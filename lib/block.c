@@ -99,7 +99,12 @@ int create_filesystem(const char *path)
             LOG_WARN("File state returns something bad, the details: %s\n", strerror(errno));
             return -2;
         }
-        write(file_state, FILE_SYSTEM_HEADER, strlen(FILE_SYSTEM_HEADER));
+	char tmp[TOTAL_NUMBER_OF_BYTES] = {0};
+	
+	write(file_state, tmp, TOTAL_NUMBER_OF_BYTES);//clear the whole file system
+        lseek(file_state, 0, SEEK_SET);//set cursor to initial point
+
+	write(file_state, FILE_SYSTEM_HEADER, strlen(FILE_SYSTEM_HEADER));
         snprintf(file_system_path, 100, "%s", path);
 
         int i;
@@ -119,7 +124,7 @@ int load_filesystem(const char *path)
 {
     struct stat st;
     LOG_DEBUG("file_state = %d\n", file_state);
-    if(file_state > 0) {
+    if(file_state < 0) {
         if((file_state = open(path, O_RDWR)) < 0) {
             LOG_WARN("File system %s does not exist, please call create_block first\n", path);
             return -1;
@@ -324,14 +329,15 @@ int read_block(const int block_ID, void *block)
 {
     int byte_read = 0;
 
-    LOG_DEBUG("fil_system_path = %s\n", file_system_path);
+    LOG_DEBUG("file_system_path = %s, blockID = %d\n", file_system_path, block_ID);
     if(file_state > 0) {
         if((file_state = open(file_system_path, O_RDWR)) < 0) {
+	    LOG_DEBUG("file_state = %d\n", file_state);
             LOG_WARN("File system %s does not exist, please call create_block first\n", file_system_path);
             return -1;
         }
 
-        if(block_ID >= BLOCK_SIZE || block_ID == 0 || map_check(block_ID) == FALSE) {
+        if(block_ID >= NUMBER_OF_BLOCKS || block_ID == 0 || map_check(block_ID) == FALSE) {
             LOG_WARN("Invalid block_ID\n");
             return -2;
         }
@@ -342,6 +348,7 @@ int read_block(const int block_ID, void *block)
         }
         char tmp[BLOCK_SIZE] = {0};
         if((byte_read = read(file_state, tmp, BLOCK_SIZE)) != BLOCK_SIZE) {
+	    LOG_DEBUG("file_state = %d, byte_read = %d\n", file_state, byte_read);
             LOG_WARN("Fail to read: %s\n", strerror(errno));
             return -4;
         }
