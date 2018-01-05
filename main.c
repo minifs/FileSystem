@@ -1151,6 +1151,8 @@ int main(){
             printf("8.mv [file] [filename]       \t rename the file.\n");
             printf("9.mvdir [Dir] [directoryname]\t rename the directory.\n");
             printf("10.cat [file]...             \t read files.\n");
+            printf("11.pwd                       \t print the current directory path.\n");
+            printf("12.echo [content] > [file]   \t write content to the file.\n");
 		}
 		else
 		    printf("wrong commmand\n");
