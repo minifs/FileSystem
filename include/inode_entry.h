@@ -108,7 +108,7 @@ int query_inode_bitmap (int id);
  */
 char* dir_init();
 
-char* dir_ls(const char *filename);
+int dir_ls(char* ls_list, const char *filename);
 
 bool dir_search(const char *pwd, const char *foldername);
 

@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include "inode_entry.h"
-inode* inode_entries[INODE_SIZE];
+inode* inode_entries[INODE_NUM];
 /*typedef struct inode_entry {
     short inode_id;
     int filesize;
@@ -21,7 +21,7 @@ inode* inode_entries[INODE_SIZE];
 
 inode* Inode_Entry(int i)
 {
-    if ( i < 0 || i >= INODE_SIZE )
+    if ( i < 0 || i >= INODE_NUM )
         return NULL;
 
     return inode_entries[i];
@@ -38,7 +38,7 @@ char* dir_init()
     // preparing to cache inode_entry table in inode_entries
     // read-in every inode into cache
     // Waiting for read_inode function
-    for (i = 0; i < INODE_SIZE; i++) {
+    for (i = 0; i < INODE_NUM; i++) {
         inode* tmp = (inode*)malloc(sizeof(inode));
         tmp->inode_id = i;
 
@@ -54,7 +54,7 @@ char* dir_init()
 int insert_inode_into_table(inode* node)
 {
     int i;
-    for (i = 0; i < INODE_SIZE; i++) {
+    for (i = 0; i < INODE_NUM; i++) {
         if ( Inode_Entry(i)->inode_id == -1 ) {
             free(Inode_Entry(i));
             inode_entries[i] = node;
@@ -69,7 +69,7 @@ int insert_inode_into_table(inode* node)
 int delete_inode_from_table(inode* node)
 {
     int i;
-    for (i = 0; i < INODE_SIZE; i++) {
+    for (i = 0; i < INODE_NUM; i++) {
         inode *n = Inode_Entry(i);
         if ( n->inode_id == node->inode_id ) {
             n->inode_id = -1;
@@ -92,7 +92,7 @@ int delete_inode_from_table(inode* node)
 inode* get_inode_from_path(const char *path)
 {
     int i;
-    for (i = 0; i < INODE_SIZE; i++) {
+    for (i = 0; i < INODE_NUM; i++) {
         inode* node = Inode_Entry(i);
 
         if (node->inode_id == -1) {
@@ -133,83 +133,42 @@ int split_num(char **arr, char *str, const char *token, int num_entry)
  * (We don't have this iterm) Check this file type is DIR, if not, return "This is not Dirctory" string
  * Get the files under the filename, then return the string.
  */
-char* dir_ls(const char *filename)
+int dir_ls(char* ls_list, const char *filename)
 {
-    char* file_name;
-    char *ls_list;
-    char *no_dir;
-    char rootstring[] = "root";
-    char *c = rootstring;
-    int i;
-    ls_list = (char *)malloc(sizeof(char));
+    int i, j;
+    char *list[1000];
+    int count = 0;
+    strcpy(ls_list, "");
+    int return_flag = -1;
     for (i = 0; i < INODE_NUM; i++) {
         inode* node = Inode_Entry(i);
-    }
-    printf("%s\n", filename);
-    char *arr_filename[32];
-    char *token_filename = (char *)filename;
-    int num_filename = 0;
-    num_filename = split_num(arr_filename, (char *)filename, "/", num_filename);
-    split_token(arr_filename, token_filename, "/", num_filename);
-    for (i = 0; i < INODE_NUM; i++) {
-        // Using strtok cut "/" , then save the token to array (filename+inode)
-        // Using strcmp to compare every array value
-        // Saving the value into ls_list
-        char *arr_entry[MAX_LAYER];
-        int num_entry = 0;
-        char *inode_entries_filename = node[i]->filename;
-        num_entry = split_num(arr_entry, node[i]->filename, "/", num_entry);
-        split_token(arr_entry, inode_entries_filename, "/", num_entry);
-        if (num_entry > 0) {
-            char *arr_name = arr_entry[num_entry - 1];
-            if (strcmp(arr_filename[num_filename - 1], arr_entry[num_entry - 2]) == 0) {
-                if (num_filename + 1 == num_entry) {
-                    strcat(ls_list, arr_entry[num_entry - 1]);
-                    strcat(ls_list, "\n");
+        if (strncmp(node->filename, filename, strlen(filename)) == 0) {
+            return_flag = 0;
+            char buf[100], *value, *name;
+            if(strcmp(filename, "/")==0)
+                value = strdup(node->filename + (strlen(filename)));
+            else
+                value = strdup(node->filename + (strlen(filename) + 1));
+            name = strsep(&value, "/");
+
+            if (strlen(name) > 0) {
+                int flag = 0;
+                for (j = 0; j < count; j++) {
+                    if (strcmp(list[j], name) == 0) {
+                        flag = 1;
+                        break;
+                    }
                 }
-            } else if (strcmp(arr_filename[num_filename - 1], arr_entry[num_entry - 3]) == 0) {
-                if (num_filename + 1 == num_entry) {
-                    strcat(ls_list, arr_entry[num_entry - 2]);
-                    strcat(ls_list, "\n");
-                }
-            } else if (strcmp(arr_filename[num_filename - 1], arr_entry[num_entry - 4]) == 0) {
-                if (num_filename + 1 == num_entry) {
-                    strcat(ls_list, arr_entry[num_entry - 3]);
-                    strcat(ls_list, "\n");
-                }
-            } else if (strcmp(arr_filename[num_filename - 1], arr_entry[num_entry - 5]) == 0) {
-                if (num_filename + 1 == num_entry) {
-                    strcat(ls_list, arr_entry[num_entry - 4]);
-                    strcat(ls_list, "\n");
-                }
-            } else if (strcmp(arr_filename[num_filename - 1], arr_entry[num_entry - 6]) == 0) {
-                if (num_filename + 1 == num_entry) {
-                    strcat(ls_list, arr_entry[num_entry - 5]);
-                    strcat(ls_list, "\n");
-                }
-            } else if (strcmp(arr_filename[num_filename - 1], arr_entry[num_entry - 7]) == 0) {
-                if (num_filename + 1 == num_entry) {
-                    strcat(ls_list, arr_entry[num_entry - 6]);
-                    strcat(ls_list, "\n");
-                }
-            } else if (strcmp(arr_filename[num_filename - 1], arr_entry[num_entry - 8]) == 0) {
-                if (num_filename + 1 == num_entry) {
-                    strcat(ls_list, arr_entry[num_entry - 7]);
-                    strcat(ls_list, "\n");
-                }
-            } else if (strcmp(arr_filename[num_filename - 1], arr_entry[num_entry - 9]) == 0) {
-                if (num_filename + 1 == num_entry) {
-                    strcat(ls_list, arr_entry[num_entry - 8]);
-                    strcat(ls_list, "\n");
-                }
-            } else {
-                continue;
+                if (flag == 1) continue;
+                list[count] = strdup(name);
+                count++;
+                sprintf(buf, "%s\n", name);
+                strcat(ls_list, buf);
             }
         }
     }
-    return (char *)ls_list;
+    return return_flag;
 }
-
 
 /*
  * like find feature
@@ -222,27 +181,29 @@ bool dir_search(const char *pwd, const char *foldername)
 {
     int i;
     bool is_folder = false;
-    char *get_files;
+    char get_files[500];
     char *pch;
-    for (i = 0; i < INODE_NUM; i++) {
-        inode* node = Inode_Entry(i);
-    }
+    inode* node[INODE_NUM];
     // get all the files from dir_ls
-    get_files = dir_ls(pwd);
+    dir_ls(get_files, pwd);
     // Compare the foldername and the get_files
     // if the name is the same, than check the file_type is it 2
     // if yes return true else return false
     pch = strstr (get_files, foldername);
     if (pch != NULL) {
-        printf("%s", pch);
         for (i = 0; i < INODE_NUM; i++) {
+            node[i] = Inode_Entry(i);
             if (strcmp(pwd, node[i]->filename) == 0 && node[i]->file_type == 2) {
                 is_folder = true;
                 LOG_DEBUG("Finding foldername = %s\t, folder type is %d\t ", foldername, node[i]->file_type);
             }
         }
     }
-    return is_folder;
+    if (is_folder == true) {
+        return 0;
+    } else {
+        return -1;
+    }
 }
 
 
@@ -262,7 +223,11 @@ bool dir_create(const char *pwd, const char *foldername)
     bool is_same = false;
     int i;
     char cfilename[32];
-    snprintf(cfilename, 32, "%s/%s", pwd, foldername);
+    if (strcmp(pwd, "/") == 0) {
+        snprintf(cfilename, 32, "/%s", foldername);
+    } else {
+        snprintf(cfilename, 32, "%s/%s", pwd, foldername);
+    }
     size_t cfilenamelen = strlen(cfilename);
 
     // Check the length of totallen (pwd + foldername)
@@ -270,20 +235,20 @@ bool dir_create(const char *pwd, const char *foldername)
     size_t foldernamelen = strlen(foldername);
     int totallen = pwdlen + foldernamelen;
     if (totallen > 32) {
-        return is_created;
+        is_created = false;
     }
     // Check is there the same folder name
     is_same = dir_search(pwd, foldername);
-    if (is_same == 1) {
+    if (is_same == 0) {
         // If there is the same folder name, return can't create the folder
-        return is_created;
+        is_created = false;
     } else {
         // Save the total filename & length into NULL array in structure: inode_entries[x] (save this in memory)
         // After save the structure, then call the create_inode to get the inode_id
         // After get the inode_id the program save the inode_id value in to inode_entries[x].inode_id
         inode* node[INODE_NUM];
         for (i = 0; i < INODE_NUM; i++) {
-            inode* node = Inode_Entry(i);
+            node[i] = Inode_Entry(i);
             size_t filename_len = strlen(node[i]->filename);
             if (filename_len < 1) {
                 struct stat st;
@@ -292,14 +257,23 @@ bool dir_create(const char *pwd, const char *foldername)
                 node[i]->name_len = cfilenamelen;
                 node[i]->file_type = 2;
                 node[i]->filesize = st.st_size;
-                node[i]->inode_id = create_inode(node[i]->);
+                node[i]->inode_id = create_inode(node[i]);
                 if (node[i]->inode_id != 0) {
                     LOG_DEBUG("Create a foldername = %s\t, folder type is %d\t ", node[i]->filename, node[i]->file_type);
                     is_created = true;
+                    if (is_created == true) {
+                        return 0;
+                    } else {
+                        return -1;
+                    }
                 }
-                return is_created;
             }
         }
+    }
+    if (is_created == true) {
+        return 0;
+    } else {
+        return -1;
     }
 }
 
