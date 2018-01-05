@@ -175,7 +175,7 @@ int create_file(const char *pwd, const char *fname)
 
     inode_ptr->filesize = 0;
     inode_ptr->file_type = 1; //1=File, 2=Directory
-    inode_ptr->name_len = fnamelen;
+    inode_ptr->name_len = totallen;
     snprintf(inode_ptr->filename, 32, "%s", cfilename);
     //inode_ptr->inode_id = search_empty(); //find next empty inode
     //inode_ptr->inode_id = create_inode(inode_entries[1]);
@@ -184,6 +184,7 @@ int create_file(const char *pwd, const char *fname)
     int err;
 	err = create_inode(inode_ptr);
 	if(err == 0) {
+		insert_inode_into_table(inode_ptr);
 		printf("file create success.\n");
 		printf("inode id : %d\n",inode_ptr->inode_id);
 		printf("filesize : %d\n",inode_ptr->filesize);
@@ -219,6 +220,7 @@ int rename_file(const char *pwd, const char *fname1, const char *fname2)
 
     inode_ptr = get_inode_from_path(cfilename1);
     snprintf(inode_ptr->filename, 32, "%s", cfilename2);
+	(inode_ptr->name_len = totallen;
     update_inode(inode_ptr);
 
     return 0;
