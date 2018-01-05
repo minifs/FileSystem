@@ -177,13 +177,19 @@ int create_file(const char *pwd, const char *fname)
     inode_ptr->file_type = 1; //1=File, 2=Directory
     inode_ptr->name_len = fnamelen;
     snprintf(inode_ptr->filename, 32, "%s", cfilename);
-    inode_ptr->inode_id = search_empty(); //find next empty inode
+    //inode_ptr->inode_id = search_empty(); //find next empty inode
     //inode_ptr->inode_id = create_inode(inode_entries[1]);
 
-    insert_inode_into_table(inode_ptr);
-    create_inode(inode_ptr);
-    printf("inode id : %d\n",inode_ptr->inode_id);
-    printf("filesize : %d\n",inode_ptr->filesize);
+    //insert_inode_into_table(inode_ptr);
+    int err;
+	err = create_inode(inode_ptr);
+	if(err == 0) {
+		printf("file create success.\n");
+		printf("inode id : %d\n",inode_ptr->inode_id);
+		printf("filesize : %d\n",inode_ptr->filesize);
+	} else {
+		printf("file create failed.\n");
+	}
 
     return 0;
 
