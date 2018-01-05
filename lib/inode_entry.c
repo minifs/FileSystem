@@ -316,9 +316,9 @@ int read_file (inode *inode_entry, void* file)
             LOG_WARN("loaded file is LARGER then filesize\n");
         }
 
-         i++;
-        
-        
+        i++;
+
+
 
     }
     LOG_DEBUG("Load block num: %d, File Size: %d\n", i, inode_entry->filesize);
