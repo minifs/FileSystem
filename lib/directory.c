@@ -33,7 +33,7 @@ inode* Inode_Entry(int i)
 char* dir_init()
 {
     init_superblock();
-    memset(inode_entries, '\0', sizeof(inode_entries));
+    memset(inode_entries, 0, sizeof(inode_entries));
     LOG_DEBUG("init_pwd\n");
     char *init_pwd;
     int result;
@@ -45,7 +45,10 @@ char* dir_init()
     for (i = 0; i < INODE_NUM; i++) {
         inode* tmp = (inode*)malloc(sizeof(inode));
 
-        memset(tmp, '\0', sizeof(tmp));
+        memset(tmp, 0, sizeof(inode));
+        if (i == 1) {
+            dump_inode(tmp);
+        }
         tmp->inode_id = i;
         result = query_inode(tmp);
         if ( result < 0 )
@@ -71,7 +74,8 @@ int insert_inode_into_table(inode* node)
 {
     int i;
     for (i = 0; i < INODE_NUM; i++) {
-        if ( Inode_Entry(i)->inode_id == -1 ) {
+        size_t filename_len = strlen(Inode_Entry(i)->filename);
+        if ( Inode_Entry(i)->inode_id == -1 && filename_len < 1) {
             free(Inode_Entry(i));
             inode_entries[i] = node;
 
@@ -163,6 +167,7 @@ int dir_ls(char* ls_list, const char *filename)
                     sprintf(buf, "%s\n", name);
                 if(node->file_type == 2)
                     sprintf(buf, "%s/\n", name);
+                LOG_DEBUG("ls all: %s\n", buf);
                 strcat(ls_list, buf);
             }
         }
