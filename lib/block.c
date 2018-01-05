@@ -99,15 +99,23 @@ int create_filesystem(const char *path)
             LOG_WARN("File state returns something bad, the details: %s\n", strerror(errno));
             return -2;
         }
-	char tmp[TOTAL_NUMBER_OF_BYTES] = {0};
 	
-	write(file_state, tmp, TOTAL_NUMBER_OF_BYTES);//clear the whole file system
-        lseek(file_state, 0, SEEK_SET);//set cursor to initial point
+//	uint8_t tmp[BLOCK_SIZE] = {0};	
+	long i;
+
+	//LOG_DEBUG("TOTAL_NUMBER_OF_BYTES = %d\n", TOTAL_NUMBER_OF_BYTES);
+	//for(i = 0; i < 10; i++){
+	//	write(file_state, tmp, BLOCK_SIZE);
+	//}
+        
+//	if(lseek(file_state, 0, SEEK_SET) < 0){//set cursor to initial point
+//		LOG_WARN("Fail to move to start point\n");
+//		return -3;
+//	}
 
 	write(file_state, FILE_SYSTEM_HEADER, strlen(FILE_SYSTEM_HEADER));
         snprintf(file_system_path, 100, "%s", path);
 
-        int i;
         for(i = 0; i <= 513; i++) {
             map_set(i);//reverse the first 514 blocks for inodes.
         }
