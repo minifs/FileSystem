@@ -116,7 +116,9 @@ inode* get_inode_from_path(const char *path)
         }
 
         if (strcmp(node->filename, path) == 0) {
-            return node;
+            if(node->file_type == 1){
+                return node;    
+            }
         }
     }
 
@@ -157,7 +159,10 @@ int dir_ls(char* ls_list, const char *filename)
                 if (flag == 1) continue;
                 list[count] = strdup(name);
                 count++;
-                sprintf(buf, "%s\n", name);
+                if(node->file_type == 1)
+                    sprintf(buf, "%s\n", name);
+                if(node->file_type == 2)
+                    sprintf(buf, "%s/\n", name);
                 strcat(ls_list, buf);
             }
         }
@@ -393,7 +398,7 @@ int dir_delete(const char *pwd, const char *foldername)
                     sprintf(node->filename, "");
                     node->name_len = 0;
                     node->file_type = 0;
-                    node->inode_id = 0;
+                    node->inode_id = -1;
                     /*call delete_inode*/
                     int result;
                     result = delete_inode(node);
