@@ -16,17 +16,19 @@ int read_file_by_path(const char *path, void **buf)
         printf("No such file.\n");
         return -1;
     }
-
+    *buf = (void*)file_inode->buf;
+    
+    
     int file_size = file_inode->filesize;
-    void *read_buf = (void*)malloc( file_size );
+    /*void *read_buf = (void*)malloc( file_size );
     int ret = read_file ( file_inode, read_buf );
 
     if(ret<0) {
         free(read_buf);
         return -2;
     }
-
-    *buf = read_buf;
+	
+    *buf = read_buf;*/
 
     return file_size;
 }
@@ -75,22 +77,24 @@ int write_file_by_path(const char *path, void *buf, int size)
     }
 
 
-    void *write_buf = (void*)malloc( size );
-    strncpy( (char*)write_buf, (const char*)buf, size );
+    strncpy( file_inode->buf, (const char*)buf, size );
+    file_inode->buf[size]='\n';
+    //void *write_buf = (void*)malloc( size );
+    //strncpy( (char*)write_buf, (const char*)buf, size );
     //printf("write:%s\n", (char*)write_buf);
 
-    int ret = write_file ( file_inode, write_buf );
-    if(ret<0) {
-        return ret;
-    }
+    //int ret = write_file ( file_inode, write_buf );
+    //if(ret<0) {
+        //return ret;
+    //}
 
     time_t cur_time;
     time (&cur_time);
     file_inode->filesize = size;
     file_inode->timestamp = cur_time;
-    update_inode ( file_inode );
+    //update_inode ( file_inode );
 
-    free( write_buf );
+    //free( write_buf );
     return 0;
 }
 
@@ -188,6 +192,7 @@ int create_file(const char *pwd, const char *fname)
     int err;
 	err = create_inode(inode_ptr);
 	if(err == 0) {
+    		inode_ptr->buf = (char*)malloc(1024);
 		insert_inode_into_table(inode_ptr);
 		printf("file create success.\n");
 		printf("inode id : %d\n",inode_ptr->inode_id);

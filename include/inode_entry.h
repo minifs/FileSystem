@@ -36,6 +36,7 @@ typedef struct inode_entry {
     short name_len;
     int num[15];
     char filename[32];
+    char* buf;
 } inode;
 
 
