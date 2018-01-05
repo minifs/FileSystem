@@ -142,10 +142,8 @@ char* dir_ls(const char *filename)
     char *c = rootstring;
     int i;
     ls_list = (char *)malloc(sizeof(char));
-    inode_entries = (struct inode_entry*)malloc(INODE_NUM * sizeof(struct inode_entry));
-    struct inode_entry inode_entries[INODE_NUM];
     for (i = 0; i < INODE_NUM; i++) {
-        inode_entries[i] = Inode_Entry(i);
+        inode* node = Inode_Entry(i);
     }
     printf("%s\n", filename);
     char *arr_filename[32];
@@ -159,8 +157,8 @@ char* dir_ls(const char *filename)
         // Saving the value into ls_list
         char *arr_entry[MAX_LAYER];
         int num_entry = 0;
-        char *inode_entries_filename = inode_entries[i].filename;
-        num_entry = split_num(arr_entry, inode_entries[i].filename, "/", num_entry);
+        char *inode_entries_filename = node[i]->filename;
+        num_entry = split_num(arr_entry, node[i]->filename, "/", num_entry);
         split_token(arr_entry, inode_entries_filename, "/", num_entry);
         if (num_entry > 0) {
             char *arr_name = arr_entry[num_entry - 1];
@@ -226,10 +224,8 @@ bool dir_search(const char *pwd, const char *foldername)
     bool is_folder = false;
     char *get_files;
     char *pch;
-    inode_entries = (struct inode_entry*)malloc(INODE_NUM * sizeof(struct inode_entry));
-    struct inode_entry inode_entries[INODE_NUM];
     for (i = 0; i < INODE_NUM; i++) {
-        inode_entries[i] = Inode_Entry(i);
+        inode* node = Inode_Entry(i);
     }
     // get all the files from dir_ls
     get_files = dir_ls(pwd);
@@ -240,9 +236,9 @@ bool dir_search(const char *pwd, const char *foldername)
     if (pch != NULL) {
         printf("%s", pch);
         for (i = 0; i < INODE_NUM; i++) {
-            if (strcmp(pwd, inode_entries[i].filename) == 0 && inode_entries[i].file_type == 2) {
+            if (strcmp(pwd, node[i]->filename) == 0 && node[i]->file_type == 2) {
                 is_folder = true;
-                LOG_DEBUG("Finding foldername = %s\t, folder type is %d\t ", foldername, inode_entries[i].file_type);
+                LOG_DEBUG("Finding foldername = %s\t, folder type is %d\t ", foldername, node[i]->file_type);
             }
         }
     }
@@ -285,21 +281,20 @@ bool dir_create(const char *pwd, const char *foldername)
         // Save the total filename & length into NULL array in structure: inode_entries[x] (save this in memory)
         // After save the structure, then call the create_inode to get the inode_id
         // After get the inode_id the program save the inode_id value in to inode_entries[x].inode_id
-        inode_entries = (struct inode_entry*)malloc(INODE_NUM * sizeof(struct inode_entry));
-        struct inode_entry inode_entries[INODE_NUM];
+        inode* node[INODE_NUM];
         for (i = 0; i < INODE_NUM; i++) {
-            size_t filename_len = strlen(inode_entries[i].filename);
-            inode_entries[i] = Inode_Entry(i);
+            inode* node = Inode_Entry(i);
+            size_t filename_len = strlen(node[i]->filename);
             if (filename_len < 1) {
                 struct stat st;
                 stat(cfilename, &st);
-                snprintf(inode_entries[i].filename, 32, "%s", cfilename);
-                inode_entries[i].name_len = cfilenamelen;
-                inode_entries[i].file_type = 2;
-                inode_entries[i].filesize = st.st_size;
-                inode_entries[i].inode_id = create_inode(inode_entries[i]);
-                if (inode_entries[i].inode_id != 0) {
-                    LOG_DEBUG("Create a foldername = %s\t, folder type is %d\t ", inode_entries[i].filename, inode_entries[i].file_type);
+                snprintf(node[i]->filename, 32, "%s", cfilename);
+                node[i]->name_len = cfilenamelen;
+                node[i]->file_type = 2;
+                node[i]->filesize = st.st_size;
+                node[i]->inode_id = create_inode(node[i]->);
+                if (node[i]->inode_id != 0) {
+                    LOG_DEBUG("Create a foldername = %s\t, folder type is %d\t ", node[i]->filename, node[i]->file_type);
                     is_created = true;
                 }
                 return is_created;
