@@ -21,7 +21,7 @@ inode* inode_entries[INODE_SIZE];
 
 inode* Inode_Entry(int i)
 {
-    if( i<0 || i>=INODE_SIZE )
+    if ( i < 0 || i >= INODE_SIZE )
         return NULL;
 
     return inode_entries[i];
@@ -38,12 +38,12 @@ char* dir_init()
     // preparing to cache inode_entry table in inode_entries
     // read-in every inode into cache
     // Waiting for read_inode function
-    for(i=0; i<INODE_SIZE; i++) {
+    for (i = 0; i < INODE_SIZE; i++) {
         inode* tmp = (inode*)malloc(sizeof(inode));
         tmp->inode_id = i;
 
         result = query_inode(tmp);
-        if( result<0 )
+        if ( result < 0 )
             tmp->inode_id = -1; // empty inode
         inode_entries[i] = tmp;
     }
@@ -54,8 +54,8 @@ char* dir_init()
 int insert_inode_into_table(inode* node)
 {
     int i;
-    for(i=0; i<INODE_SIZE; i++) {
-        if( Inode_Entry(i)->inode_id == -1 ) {
+    for (i = 0; i < INODE_SIZE; i++) {
+        if ( Inode_Entry(i)->inode_id == -1 ) {
             free(Inode_Entry(i));
             inode_entries[i] = node;
 
@@ -69,9 +69,9 @@ int insert_inode_into_table(inode* node)
 int delete_inode_from_table(inode* node)
 {
     int i;
-    for(i=0; i<INODE_SIZE; i++) {
+    for (i = 0; i < INODE_SIZE; i++) {
         inode *n = Inode_Entry(i);
-        if( n->inode_id == node->inode_id ) {
+        if ( n->inode_id == node->inode_id ) {
             n->inode_id = -1;
             n->filesize = 0;
             n->uid = 0;
@@ -92,14 +92,14 @@ int delete_inode_from_table(inode* node)
 inode* get_inode_from_path(char *path)
 {
     int i;
-    for(i=0; i<INODE_SIZE; i++) {
+    for (i = 0; i < INODE_SIZE; i++) {
         inode* node = Inode_Entry(i);
 
-        if(node->inode_id == -1) {
+        if (node->inode_id == -1) {
             continue;
         }
 
-        if(strcmp(node->filename, path)==0) {
+        if (strcmp(node->filename, path) == 0) {
             return node;
         }
     }
@@ -142,10 +142,8 @@ char* dir_ls(const char *filename)
     char *c = rootstring;
     int i;
     ls_list = (char *)malloc(sizeof(char));
-    inode_entries = (struct inode_entry*)malloc(INODE_NUM * sizeof(struct inode_entry));
-    struct inode_entry inode_entries[INODE_NUM];
     for (i = 0; i < INODE_NUM; i++) {
-        inode_entries[i] = Inode_Entry(i);
+        inode* node = Inode_Entry(i);
     }
     printf("%s\n", filename);
     char *arr_filename[32];
@@ -159,8 +157,8 @@ char* dir_ls(const char *filename)
         // Saving the value into ls_list
         char *arr_entry[MAX_LAYER];
         int num_entry = 0;
-        char *inode_entries_filename = inode_entries[i].filename;
-        num_entry = split_num(arr_entry, inode_entries[i].filename, "/", num_entry);
+        char *inode_entries_filename = node[i]->filename;
+        num_entry = split_num(arr_entry, node[i]->filename, "/", num_entry);
         split_token(arr_entry, inode_entries_filename, "/", num_entry);
         if (num_entry > 0) {
             char *arr_name = arr_entry[num_entry - 1];
@@ -226,10 +224,8 @@ bool dir_search(const char *pwd, const char *foldername)
     bool is_folder = false;
     char *get_files;
     char *pch;
-    inode_entries = (struct inode_entry*)malloc(INODE_NUM * sizeof(struct inode_entry));
-    struct inode_entry inode_entries[INODE_NUM];
     for (i = 0; i < INODE_NUM; i++) {
-        inode_entries[i] = Inode_Entry(i);
+        inode* node = Inode_Entry(i);
     }
     // get all the files from dir_ls
     get_files = dir_ls(pwd);
@@ -240,9 +236,9 @@ bool dir_search(const char *pwd, const char *foldername)
     if (pch != NULL) {
         printf("%s", pch);
         for (i = 0; i < INODE_NUM; i++) {
-            if (strcmp(pwd, inode_entries[i].filename) == 0 && inode_entries[i].file_type == 2) {
+            if (strcmp(pwd, node[i]->filename) == 0 && node[i]->file_type == 2) {
                 is_folder = true;
-                LOG_DEBUG("Finding foldername = %s\t, folder type is %d\t ", foldername, inode_entries[i].file_type);
+                LOG_DEBUG("Finding foldername = %s\t, folder type is %d\t ", foldername, node[i]->file_type);
             }
         }
     }
@@ -285,21 +281,20 @@ bool dir_create(const char *pwd, const char *foldername)
         // Save the total filename & length into NULL array in structure: inode_entries[x] (save this in memory)
         // After save the structure, then call the create_inode to get the inode_id
         // After get the inode_id the program save the inode_id value in to inode_entries[x].inode_id
-        inode_entries = (struct inode_entry*)malloc(INODE_NUM * sizeof(struct inode_entry));
-        struct inode_entry inode_entries[INODE_NUM];
+        inode* node[INODE_NUM];
         for (i = 0; i < INODE_NUM; i++) {
-            size_t filename_len = strlen(inode_entries[i].filename);
-            inode_entries[i] = Inode_Entry(i);
+            inode* node = Inode_Entry(i);
+            size_t filename_len = strlen(node[i]->filename);
             if (filename_len < 1) {
                 struct stat st;
                 stat(cfilename, &st);
-                snprintf(inode_entries[i].filename, 32, "%s", cfilename);
-                inode_entries[i].name_len = cfilenamelen;
-                inode_entries[i].file_type = 2;
-                inode_entries[i].filesize = st.st_size;
-                inode_entries[i].inode_id = create_inode(inode_entries[i]);
-                if (inode_entries[i].inode_id != 0) {
-                    LOG_DEBUG("Create a foldername = %s\t, folder type is %d\t ", inode_entries[i].filename, inode_entries[i].file_type);
+                snprintf(node[i]->filename, 32, "%s", cfilename);
+                node[i]->name_len = cfilenamelen;
+                node[i]->file_type = 2;
+                node[i]->filesize = st.st_size;
+                node[i]->inode_id = create_inode(node[i]->);
+                if (node[i]->inode_id != 0) {
+                    LOG_DEBUG("Create a foldername = %s\t, folder type is %d\t ", node[i]->filename, node[i]->file_type);
                     is_created = true;
                 }
                 return is_created;
@@ -315,10 +310,11 @@ bool dir_create(const char *pwd, const char *foldername)
  */
 bool dir_rename(const char *pwd, const char *foldername, const char *newname)
 {
+    // printf("dir_rename in\n");
     int i;
     char str[1000];
     sprintf(str, "%s/%s", pwd, newname);
-    //check length too long or not
+    //check filename length too long or not
     if (strlen(str) > 32) {
         return false;
     }
@@ -328,25 +324,46 @@ bool dir_rename(const char *pwd, const char *foldername, const char *newname)
     }
     char filename[32];
     sprintf(filename, "%s/%s", pwd, foldername);
-    inode_entry inode_entries[INODE_NUM];
-    //look for origin directory
+    //look for origin directory & file inside
+    inode* node[INODE_NUM];
     for (i = 0; i < INODE_NUM; i++) {
-        inode_entries[i] = Inode_Entry(i);
-        if (strcmp(inode_entries[i].filename, filename) == 0) {
-            if (inode_entries[i].file_type == 2) {
-                //change filename and length
-                strcpy(inode_entries[i].filename, str);
-                inode_entries[i].name_len = strlen(str);
-                //write back to inode layer
-                /*call update_inode*/
-                if (update_inode(&inode_entries[i]) != 0) {
-                    return 0;
-                }
-                return 1;
-            }
+        node[i] = Inode_Entry(i);
+        if (strncmp(node[i]->filename, filename, strlen(filename)) == 0) {
+            char *value;
+            value = strdup(node[i]->filename + (strlen(filename) + 1));
+            //check filename length too long or not
+            if ((strlen(str) + strlen(value)) > 32)
+                return false;
         }
     }
-    return 0;
+
+    for (i = 0; i < INODE_NUM; i++) {
+        if (strncmp(node[i]->filename, filename, strlen(filename)) == 0) {
+            char *val;
+            val = strdup(node[i]->filename + (strlen(filename) + 1));
+            //change filename and length
+            //write back to inode layer
+            memset(node[i]->filename, '\0', sizeof(node[i]->filename));
+            if (strlen(val) > 0) {
+                sprintf(node[i]->filename, "%s/%s", str, val);
+                node[i]->name_len = strlen(str) + strlen(val);
+                /*call update_inode*/
+                int result;
+                result = update_inode(node[i]);
+                LOG_DEBUG("update_inode return value in dir_rename: %d", result);
+            } else {
+                strcpy(node[i]->filename, str);
+                node[i]->name_len = strlen(str);
+                /*call update_inode*/
+                int result;
+                result = update_inode(node[i]);
+                LOG_DEBUG("update_inode return value in dir_rename: %d", result);
+            }
+
+
+        }
+    }
+    return 1;
 }
 
 /*
@@ -357,13 +374,13 @@ bool dir_rename(const char *pwd, const char *foldername, const char *newname)
 bool dir_change(const char* destination)
 {
     int i;
-    inode_entry inode_entries[INODE_NUM];
+    // inode_entry inode_entries[INODE_NUM];
     //look for destination directory
     for (i = 0; i < INODE_NUM; i++) {
-        inode_entries[i] = Inode_Entry(i);
-        if (strcmp(inode_entries[i].filename, destination) == 0) {
+        inode* node = Inode_Entry(i);
+        if (strcmp(node->filename, destination) == 0) {
             //check directory type
-            if (inode_entries[i].file_type == 2) {
+            if (node->file_type == 2) {
                 return 1;
             }
         }
@@ -381,23 +398,25 @@ bool dir_delete(const char *pwd, const char *foldername)
     int i;
     char str[1000];
     sprintf(str, "%s/%s", pwd, foldername);
-    inode_entry inode_entries[INODE_NUM];
+    // inode_entry inode_entries[INODE_NUM];
     //look for directory user want to delete
     for (i = 0; i < INODE_NUM; i++) {
-        inode_entries[i] = Inode_Entry(i);
-        if (strcmp(inode_entries[i].filename, str) == 0) {
+        inode* node = Inode_Entry(i);
+        if (strcmp(node->filename, str) == 0) {
             //check directory type
-            if (inode_entries[i].file_type == 2) {
-                char *list = 0;
+            if (node->file_type == 2) {
+                char list[500];
                 //check directory is empty or not
                 list = dir_ls(str);   /*wait to change*/
                 if (strlen(list) > 0) {
                     return 0;
                 } else {
+                    sprintf(node->filename, "");
+                    node->name_len = 0;
                     /*call delete_inode*/
-                    if (delete_inode(&inode_entries[i]) != 0) {
-                        return 0;
-                    }
+                    int result;
+                    result = delete_inode(node);
+                    LOG_DEBUG("delete_inode return value in dir_delete: %d", result);
                     return 1;
                 }
             }
