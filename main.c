@@ -1199,6 +1199,24 @@ int main(){
 		}
 		else if(strcmp(argv[0],"dumpe2fs")==0){
 		}
+		else if(strcmp(argv[0],"find")==0){
+			if(argc==3){
+			    relative_to_absolute_path(argv[1],absolutePath);
+			    if(dir_search(absolutePath,argv[2])<0){//find no dir
+					strcat(absolutePath,"/");
+					strcat(absolutePath,argv[2]);
+					if(search_file(absolutePath)<0){//find no file
+					     printf("No such file or directory\n");
+				    }
+				    else{//find file
+						printf("%s\n",argv[2]);
+					}
+				}
+			}
+			else
+			    printf("wrong format\n");
+			
+		}
 		else if(strcmp(argv[0],"help")==0){
 			printf("**********Command List**********\n");
             printf("1.ls [Dir]...                \t list files under directories.\n");
@@ -1213,6 +1231,7 @@ int main(){
             printf("10.cat [file]...             \t read files.\n");
             printf("11.pwd                       \t print the current directory path.\n");
             printf("12.echo [content] > [file]   \t write content to the file.\n");
+            printf("13.find [Dir] [file/Dir]     \t find specific file or directory\n");
 		}
 		else
 		    printf("wrong commmand\n");
