@@ -43,7 +43,7 @@ typedef struct superblock_2 {
     short block_unuse;
     short inode_used;
     short inode_unuse;
-    uint8_t inode_map[INODE_NUM/8];
+    uint8_t inode_map[INODE_NUM / 8];
 } superblock_2;
 
 typedef struct single_indirect_block {
@@ -69,6 +69,8 @@ int clear_inode_bitmap (int id);
 int query_inode_bitmap (int id);
 
 int dump_inode_bitmap ();
+
+int dump_inode (inode *inode_entry);
 
 /*
  * Inode Function prototypes(External)
@@ -106,17 +108,17 @@ int query_inode_bitmap (int id);
  */
 char* dir_init();
 
-char* dir_ls(const char *filename);
+int dir_ls(char* ls_list, const char *filename);
 
-bool dir_search(const char *pwd, const char *foldername);
+int dir_search(const char *pwd, const char *foldername);
 
-bool dir_create(const char *pwd, const char *foldername);
+int dir_create(const char *pwd, const char *foldername);
 
-bool dir_rename(const char *pwd, const char *foldername, const char *newname);
+int dir_rename(const char *pwd, const char *foldername, const char *newname);
 
-bool dir_change(const char* destination);
+int dir_change(const char* destination);
 
-bool dir_delete(const char *pwd, const char *foldername);
+int dir_delete(const char *pwd, const char *foldername);
 
 /*
  * Inode table Function prototypes

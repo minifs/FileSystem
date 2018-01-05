@@ -1,27 +1,29 @@
 
-EXE_NAME = TEST_INODE_EXE
+EXE_NAME = FileSystem
 
 CXXFLAGS += -Wall
 CXXFLAGS += -g
-CXXFLAGS += -fno-stack-protector
 
-LDFLAGS += -lgtest_main 
-LDFLAGS += -lgtest 
-LDFLAGS += -lpthread
+# LDFLAGS += -lgtest_main 
+# LDFLAGS += -lgtest 
+# LDFLAGS += -lpthread
 
 DEBUG_FLAG += -DEBUG
 
 INC =
-INC += -I../../include
+INC += -I ./include
 
 SRC = 
-SRC += ../../lib/block
-SRC += ../../lib/inode_entry
-SRC += ../../lib/log
+SRC += ./lib/block
+SRC += ./lib/log
+SRC += ./lib/inode_entry
+SRC += ./lib/directory
+SRC += ./lib/file
 
-CXX = g++
 
-MAIN_CPP = ./test_inode.cpp
+CXX = gcc
+
+MAIN_CPP = ./main.c
 
 SRC_FILES = ${addsuffix .c, ${SRC}}
 OBJ_FILES = ${addsuffix .o, ${SRC}}
@@ -35,7 +37,4 @@ ${OBJ_FILES}: %.o : %.c
 	${CXX} ${CXXFLAGS} -c ${INC} $< -o $@ ${LDFLAGS} ${DEBUG_FLAG}
 clean:
 	rm -rf ${OBJ_FILES} ${EXE_NAME} filesystem.txt
-
-run: 
-	./${EXE_NAME}
 
