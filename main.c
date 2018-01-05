@@ -660,7 +660,8 @@ int main(){
 								    printf("[read_file_by_path]path:%s buf=%s\n",absolutePath,buf);
 								    len=read_file_by_path(absolutePath,&buf);
 								    printf("[read_file_by_path]ret:%d buf=%s\n",len,(char*)buf);
-								    
+								   
+                                    char tempArgvv[100];
 								    for(int k=strlen(absolutePath)-1;k>=0;k--){
 				                        if(absolutePath[k]=='/'&&k!=0){
 					                        absolutePath[k]='\0';
@@ -668,6 +669,7 @@ int main(){
 					                        printf("[create_file]pwd:%s fname=%s\n",target,&absolutePath[k+1]);
 					                        int ret=create_file(target,&absolutePath[k+1]);
 					                        printf("[create_file]ret:%d\n",ret);
+                                            strcpy(tempArgvv,&absolutePath[k+1]);
 					                
 					                        break;
 				                        }
@@ -677,6 +679,7 @@ int main(){
 				    	                    printf("[create_file]pwd:%s fname=%s\n",target,&absolutePath[k+1]);
 				    	                    int ret=create_file(target,&absolutePath[k+1]);
 				    	                    printf("[create_file]ret:%d\n",ret);
+                                            strcpy(tempArgvv,&absolutePath[k+1]);
 				    	            
 					                        break;
 					                   }
@@ -686,7 +689,7 @@ int main(){
 								    char writePath[100];
 								    strcpy(writePath,target);
 								    strcat(writePath,"/");
-								    strcat(writePath,&absolutePath[k+1]);
+								    strcat(writePath,tempArgvv);
 								    
 								    printf("[write_file_by_path]path:%s buf=%s size=%d\n",writePath,(char*)buf,len);
 									int ret=write_file_by_path(writePath,(char*)buf,len);
