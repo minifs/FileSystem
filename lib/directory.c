@@ -32,9 +32,11 @@ inode* Inode_Entry(int i)
  */
 char* dir_init()
 {
+    LOG_DEBUG("init_pwd");
     char *init_pwd;
     int result;
     short i;
+    int flag=0;
     // preparing to cache inode_entry table in inode_entries
     // read-in every inode into cache
     // Waiting for read_inode function
@@ -46,8 +48,20 @@ char* dir_init()
         if ( result < 0 )
             tmp->inode_id = -1; // empty inode
         inode_entries[i] = tmp;
+        if (tmp->filename != NULL && strcmp(tmp->filename, "/")==0){
+            flag=1;
+        }
+    }
+    if (flag==0){
+        snprintf(inode_entries[0]->filename, 32, "/");
+        inode_entries[0]->name_len = 1;
+        inode_entries[0]->file_type = 2;
+        inode_entries[0]->filesize = 0;
+        inode_entries[0]->inode_id = create_inode(inode_entries[0]);
     }
     init_pwd = Inode_Entry(0)->filename;
+    LOG_DEBUG("init_pwd");
+    LOG_DEBUG("%s", inode_entries[0]->filename);
     return init_pwd;
 }
 
@@ -236,8 +250,9 @@ int dir_create(const char *pwd, const char *foldername)
                 node[i]->name_len = cfilenamelen;
                 node[i]->file_type = 2;
                 node[i]->filesize = st.st_size;
-                node[i]->inode_id = create_inode(node[i]);
-                if (node[i]->inode_id != 0) {
+                int is_create_inode;
+                is_create_inode = create_inode(node[i]);
+                if (is_create_inode == 0) {
                     LOG_DEBUG("Create a foldername = %s\t, folder type is %d\t ", node[i]->filename, node[i]->file_type);
                     is_created = true;
                     if (is_created == true) {
