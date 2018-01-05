@@ -1,72 +1,26 @@
-#include "inode_entry.h"
+//testgcd.cpp
+#include <gtest/gtest.h>
 #include "block.h"
+#include "log.h"
 
-int main ()
+TEST(write_block, errorcode)
 {
-    create_filesystem("./filesystem.txt");
+    ASSERT_EQ(4096, create_filesystem("./filesystem.txt"));
+    int block_ID;
+    ASSERT_EQ(6, write_block(&block_ID, (void *)"hihihi", 6));
+    ASSERT_EQ(19, write_block(&block_ID, (void *)"Yes it can write it", 19));
+    ASSERT_EQ(8, write_block(&block_ID, (void *)"Third on", 8));
+    ASSERT_EQ(3, write_block(&block_ID, (void *)"abc", 3));
+    ASSERT_EQ(3, write_block(&block_ID, (void *)"abc", 3));
+}
 
-    init_superblock();
-    //dump_inode_bitmap();
+TEST(write_largelarge_file, errorcode)
+{
     
-    char test_file[100] = "The quick brown fox jumps over the lazy dog\0";
-    char read_file_buf[200] ;
+}
 
-    memset(read_file_buf, 0, 200);
-
-    /*
-    // ------ bitmap test ------
-
-    printf("------ bitmap test ------\n");
-
-    // get bitmap
-    int inode_id;
-    inode_id = 87;
-    printf("Before set inode 87: %X\n", query_inode_bitmap(inode_id));
-
-    // bitmap set
-    printf("Setting inode 87\n");
-    set_inode_bitmap (87);
-    printf("After set inode 87: %X\n", query_inode_bitmap(inode_id));
-
-    // Clear bit 
-    clear_inode_bitmap (87);
-    printf("After clear inode 87: %X\n", query_inode_bitmap(inode_id));
-
-    printf("------------------------\n\n");
-    */
-
-    /*
-    // ------ clear inode test ------
-    printf("------ clear inode test ------\n");
-    clear_inode_bitmap (0);
-    dump_inode_bitmap();
-
-    printf("------------------------\n\n");
-    */
-
-    // ------ create inode test ------
-    printf("------ create inode test ------\n");
-    inode_entry test_inode_entry_1;
-    init_inode(&test_inode_entry_1, sizeof(test_inode_entry_1));
-    create_inode(&test_inode_entry_1);
-    dump_inode(&test_inode_entry_1);
-
-    // inode_entry test_inode_entry_2;
-    // create_inode(&test_inode_entry_2);
-
-    // printf("------------------------\n\n");
-
-    // ------ delete inode test ------
-    // printf("------ delete inode test ------\n");
-    // printf("------------------------\n\n");
-
-    // ------ Write Test ------
-    test_inode_entry_1.filesize = int(sizeof(test_file));
-    write_file(&test_inode_entry_1, test_file);
-    dump_inode(&test_inode_entry_1);
-
-    read_file(&test_inode_entry_1, (void *)read_file_buf);
-    printf("read result: %s\n", read_file_buf);
-
-    return 0;
+int main(int argc, char **argv)
+{
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
