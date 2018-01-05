@@ -136,6 +136,13 @@ int main(){
     //printf("%s",absolutePath);
     //stack_to_path(currentPath,current_Path_Stack,top_of_stack);
     //printf("%s",currentPath);
+    
+    printf("           _       _       _____ _ _      ____            _                 \n");
+	printf(" _ __ ___ (_)_ __ (_)     |  ___(_) | ___/ ___| _   _ ___| |_ ___ _ __ ___  \n");
+	printf("| '_ ` _ \| | '_ \| |_____| |_  | | |/ _ \___ \| | | / __| __/ _ \ '_ ` _ \ \n");
+	printf("| | | | | | | | | | |_____|  _| | | |  __/___) | |_| \__ \ ||  __/ | | | | |\n");
+	printf("|_| |_| |_|_|_| |_|_|     |_|   |_|_|\___|____/ \__, |___/\__\___|_| |_| |_|\n");
+	printf("                                                |___/\n");
 	
 	while(1){
 		count=0;
@@ -145,7 +152,7 @@ int main(){
 		
 		printf(">");
         fgets(inputcmd,sizeof(inputcmd),stdin);
-        if(strcmp(inputcmd,"exit\n")==0)
+        if(strcmp(inputcmd,"exit\n")==0||strcmp(inputcmd,"q\n")==0)
          break;
         
 
@@ -858,14 +865,14 @@ int main(){
 					}
 					else if(strcmp(argv[i],">")!=0&&i==1){
 						relative_to_absolute_path(argv[i],absolutePath);
-						if(search_file(absolutePath)==-1){//找不到
+						if(dir_change(absolutePath)==-1){//找不到
 						//if(0){
 							strcat(tempReturn,argv[i]);
 							strcat(tempReturn,":\n");
 							strcat(tempReturn,"No such file or directory.\n");
 							
 						}    
-				        else if(search_file(absolutePath)==0){//找到
+				        else if(dir_change(absolutePath)==0){//找到
 				        //else if(1){
 							if(argv[2][0]=='\"'&&argv[2][strlen(argv[2])-1]=='\"'){//檔名如果是""括起來，去掉""的部分 
 				                argv[2][strlen(argv[2])-1]='\0';
@@ -1131,6 +1138,19 @@ int main(){
 			}
 		}
 		else if(strcmp(argv[0],"dumpe2fs")==0){
+		}
+		else if(strcmp(argv[0],"help")==0){
+			printf("**********Command List**********\n");
+            printf("1.ls [Dir]...                \t list files under directories.\n");
+            printf("2.cd [Dir]                   \t change to [Dir].\n");
+            printf("3.cp [file]...[Dir]          \t copy files to [Dir].\n");
+            printf("4.rm [file]...               \t remove files.\n");
+            printf("5.rmdir [Dir]...             \t remove directories.\n");
+            printf("6.touch [file]...            \t create files.\n");
+            printf("7.mkdir [Dir]...             \t create directories.\n");
+            printf("8.mv [file] [filename]       \t rename the file.\n");
+            printf("9.mvdir [Dir] [directoryname]\t rename the directory.\n");
+            printf("10.cat [file]...             \t read files.\n");
 		}
 		else
 		    printf("wrong commmand\n");
