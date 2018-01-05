@@ -43,6 +43,11 @@ int rename_file(const char *pwd, const char *fname1, const char *fname2);
 /*
 * Search file
 */
-int search_file(const char *pwd, const char *fname);
+int search_file(const char *fpath);
+
+/*
+* Get next empty index
+*/
+int search_empty(void)
 
 #endif
