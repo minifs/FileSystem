@@ -126,3 +126,86 @@ int delete_file_by_path(const char *path)
     return 0;
 }
 
+int search_empty(void)
+{
+	//return an empty inode index to put new inode
+	int i;
+	for(i=0;i<INODE_SIZE;i++){
+		inode_entry* node = Inode_Entry(i);
+	
+		if(node->inode_id == -1) {
+			return i;
+		}
+    }
+	return -1;//no empty space
+}
+
+/***search file***/
+/***return 0:exist , -1:not exist***/
+int search_file(const char *fpath)
+{	
+	inode_entry *my_inode = get_inode_from_path(fpath);
+	if(my_inode == NULL) {
+		return -1;
+	}
+	else if(my_inode->file_type != 1) {
+		return -1;
+	}
+	else return 0;
+}
+
+
+/***create_file***/
+/***(only update inode in memory)***/
+/***return 0:success , -1:illegel length***/
+int create_file(const char *pwd, const char *fname)
+{	
+	inode_entry* inode_ptr = (inode_entry*)malloc(sizeof(inode_entry));
+	
+	int pwdlen = strlen(pwd);
+	int fnamelen = strlen(fname);
+	int totallen = pwdlen+fnamelen;
+	if(totallen>32) return -1; //illegal length
+	
+	char cfilename[32];
+	snprintf(cfilename, 32, "%s/%s", pwd, fname);
+	
+	inode_ptr->filesize = 0; 
+	inode_ptr->file_type = 1; //1=File, 2=Directory
+	inode_ptr->name_len = fnamelen;
+	snprintf(inode_ptr->filename, 32, "%s", cfilename);
+	inode_ptr->inode_id = search_empty(); //find next empty inode
+	//inode_ptr->inode_id = create_inode(inode_entries[1]);
+	
+	insert_inode_into_table(inode_ptr);
+	create_inode(inode_ptr);
+	printf("inode id : %d\n",inode_ptr->inode_id);
+	printf("filesize : %d\n",inode_ptr->filesize);
+	
+	return 0;
+
+}
+
+/***rename_file***/
+/***(only update inode in memory)***/
+/***return 0:success , -1:fname2 illegel length***/
+int rename_file(const char *pwd, const char *fname1, const char *fname2)
+{	
+	inode_entry* inode_ptr = (inode_entry*)malloc(sizeof(inode_entry));
+	
+	int pwdlen = strlen(pwd);
+	int fnamelen = strlen(fname2);
+	int totallen = pwdlen+fnamelen;
+	if(totallen>32) return -1; //illegal length
+	
+	char cfilename1[32];
+	snprintf(cfilename1, 32, "%s/%s", pwd, fname1);
+	char cfilename2[32];
+	snprintf(cfilename2, 32, "%s/%s", pwd, fname2);
+	
+	inode_ptr = get_inode_from_path(cfilename1);
+	snprintf(inode_ptr->filename, 32, "%s", cfilename2);
+	update_inode(inode_ptr);
+	
+	return 0;
+}
