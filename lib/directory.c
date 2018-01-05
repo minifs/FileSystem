@@ -44,9 +44,9 @@ char* dir_init()
     // Waiting for read_inode function
     for (i = 0; i < INODE_NUM; i++) {
         inode* tmp = (inode*)malloc(sizeof(inode));
-        tmp->inode_id = i;
 
         memset(tmp, '\0', sizeof(tmp));
+        tmp->inode_id = i;
         result = query_inode(tmp);
         if ( result < 0 )
             tmp->inode_id = -1; // empty inode
