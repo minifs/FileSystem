@@ -294,6 +294,7 @@ int dir_rename(const char *pwd, const char *foldername, const char *newname)
         }
     }
     //look for origin directory
+    int result;
     for (i = 0; i < INODE_NUM; i++) {
         // printf("loop in\n");
         // printf("get inode\n");
@@ -307,14 +308,12 @@ int dir_rename(const char *pwd, const char *foldername, const char *newname)
                 sprintf(node[i]->filename, "%s/%s", str, val);
                 node[i]->name_len = strlen(str) + strlen(val);
                 /*call update_inode*/
-                /*int result;
                 result = update_inode(node[i]);
-                LOG_DEBUG("update_inode return value in dir_rename: %d", result);*/
+                LOG_DEBUG("update_inode return value in dir_rename: %d", result);
             } else {
                 strcpy(node[i]->filename, str);
                 node[i]->name_len = strlen(str);
                 /*call update_inode*/
-                int result;
                 result = update_inode(node[i]);
                 LOG_DEBUG("update_inode return value in dir_rename: %d", result);
             }
