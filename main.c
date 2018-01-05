@@ -390,7 +390,7 @@ int main(){
 					
 					if(i==argc-1){
 						 if(strcmp(tempReturn,"")!=0)
-						     printf("%s",tempReturn);
+						     printf("%s\n",tempReturn);
 					 }
 
 				}
@@ -1214,7 +1214,9 @@ int main(){
 				    else{//find file
 						printf("%s\n",argv[2]);
 					}
-				}
+				}//find dir
+				else
+				    printf("%s/\n",argv[2]);
 			}
 			else
 			    printf("wrong format\n");
