@@ -19,6 +19,15 @@ void funclog (const char *format,... );
 #define INFO_LEVEL      0x04
 #define DEBUG_LEVEL     0x05
 
+#define WRITE_TO_FILE 0x00
+#define WRITE_TO_CONSOLE 0x01
+#define WRITE_TO_BOTH 0x02
+
+#ifndef LOG_TARGET
+#define LOG_TARGET WRITE_TO_BOTH
+#define LOG_PATH "Filesystem.log"
+#endif
+
 #ifndef LOG_LEVEL
 #define LOG_LEVEL   DEBUG_LEVEL
 #endif

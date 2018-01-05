@@ -9,12 +9,29 @@ void funclog (const char *format,... )
         return;
     }
 
-    va_list args;
-    memset(&args,0,sizeof(va_list));
-    va_start(args, format);
 
-    vprintf(format, args);//print information on console
-    va_end(args);
+    va_list args_vprintf;
+    va_list args_vfprintf;
+    va_start(args_vfprintf, format);
+    va_copy(args_vprintf,args_vfprintf);
+
+    if(LOG_TARGET == WRITE_TO_FILE) {
+        FILE *fp;
+        fp = fopen(LOG_PATH,"a");
+        vfprintf(fp, format, args_vfprintf);
+        fclose(fp);
+    } else if(LOG_TARGET == WRITE_TO_CONSOLE) {
+        vprintf(format, args_vprintf);//print information on console
+    } else {
+        FILE *fp;
+        fp = fopen(LOG_PATH, "a");
+        vfprintf(fp, format, args_vfprintf);
+        vprintf(format, args_vprintf);
+        fclose(fp);
+    }
+
+    va_end(args_vprintf);
+    va_end(args_vfprintf);
 }
 
 
