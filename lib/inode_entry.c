@@ -172,6 +172,15 @@ int create_inode (inode *inode_entry)
     int i = 0;
     int target_id;
 
+    inode_entry->uid = 0;
+    inode_entry->gid = 0;
+    inode_entry->filemode = 664;
+    inode_entry->timestamp = time(NULL);
+    for(i = 0; i < 14; i++)
+    {
+        inode_entry->num[i];
+    }
+    
     // assign inode_id and set bitmap up
     while (1) {
         if (query_inode_bitmap(i) == 0) {

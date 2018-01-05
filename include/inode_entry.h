@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include "log.h"
 #include "block.h"
+#include "time.h"
 
 #define BYTE_SIZE 8
 #define INODE_SIZE 128
