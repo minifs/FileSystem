@@ -220,7 +220,7 @@ int rename_file(const char *pwd, const char *fname1, const char *fname2)
 
     inode_ptr = get_inode_from_path(cfilename1);
     snprintf(inode_ptr->filename, 32, "%s", cfilename2);
-	(inode_ptr->name_len = totallen;
+	inode_ptr->name_len = totallen;
     update_inode(inode_ptr);
 
     return 0;
