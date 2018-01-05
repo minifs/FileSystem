@@ -125,9 +125,9 @@ int query_inode (inode *inode_entry)
     inode_group inode_group;
 
     // check if inode exist in bitmap
-    if(!query_inode_bitmap) {
+    if(!query_inode_bitmap(inode_entry->inode_id)) {
         LOG_ERROR("inode_id:%d doesn't exist in inode bitmap", inode_entry->inode_id);
-        return 1;
+        return -1;
     }
 
     read_block(inode_block_id, &inode_group);
@@ -139,7 +139,7 @@ int query_inode (inode *inode_entry)
         *inode_entry = inode_group.inode_list[inode_block_seq];
     } else {
         LOG_ERROR("inode_id in disk DOESN'T MATCH inode_id you requested !!!");
-        return 1;
+        return -1;
     }
 
     return 0;
@@ -187,7 +187,7 @@ int create_inode (inode *inode_entry)
 
         if (i >= INODE_NUM) {
             LOG_ERROR("NO inode available anymore !!");
-            return 1;
+            return -1;
             break;
         }
     }
