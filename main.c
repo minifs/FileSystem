@@ -551,7 +551,7 @@ int main(){
             else{
 				int cpTarget=0,m;
 				char target[100];
-				char tempName[100];
+				char tempName[100]="";
 				for(m=1;m<=argc-1;m++){
 					if(strcmp(argv[m],">")==0){
 						cpTarget=m-1;
@@ -661,8 +661,35 @@ int main(){
 								    len=read_file_by_path(absolutePath,&buf);
 								    printf("[read_file_by_path]ret:%d buf=%s\n",len,(char*)buf);
 								    
-								    printf("[write_file_by_path]path:%s buf=%s size=%d\n",absolutePath,tempReturn,strlen(tempReturn));
-									int ret=write_file_by_path(target,(char*)buf,len);
+								    for(int k=strlen(absolutePath)-1;k>=0;k--){
+				                        if(absolutePath[k]=='/'&&k!=0){
+					                        absolutePath[k]='\0';
+					                
+					                        printf("[create_file]pwd:%s fname=%s\n",target,&absolutePath[k+1]);
+					                        int ret=create_file(target,&absolutePath[k+1]);
+					                        printf("[create_file]ret:%d\n",ret);
+					                
+					                        break;
+				                        }
+				                        else if(absolutePath[k]=='/'&&k==0){//已經切到root目錄了
+				    	                    absolutePath[k]='\0';
+				    	            
+				    	                    printf("[create_file]pwd:%s fname=%s\n",target,&absolutePath[k+1]);
+				    	                    int ret=create_file(target,&absolutePath[k+1]);
+				    	                    printf("[create_file]ret:%d\n",ret);
+				    	            
+					                        break;
+					                   }
+				
+		    	                    }
+						
+								    char writePath[100];
+								    strcpy(writePath,target);
+								    strcat(writePath,"/");
+								    strcat(writePath,&absolutePath[k+1]);
+								    
+								    printf("[write_file_by_path]path:%s buf=%s size=%d\n",writePath,(char*)buf,len);
+									int ret=write_file_by_path(writePath,(char*)buf,len);
 									printf("[write_file_by_path]ret:%d\n",ret);
 								}
 								
@@ -674,12 +701,45 @@ int main(){
 								    printf("[read_file_by_path]path:%s buf=%s\n",absolutePath,buf);
 								    len=read_file_by_path(absolutePath,&buf);
 								    printf("[read_file_by_path]ret:%d buf=%s\n",len,(char*)buf);
-								    strcat(target,"/");
-								    strcat(target,tempName);
 								    
-								    printf("[write_file_by_path]path:%s buf=%s size=%d\n",absolutePath,tempReturn,strlen(tempReturn));
-									int ret=write_file_by_path(target,(char*)buf,len);
+								    if(strcmp(tempName,"")==0){
+										for(int k=strlen(absolutePath)-1;k>=0;k--){
+				                            if(absolutePath[k]=='/'&&k!=0){
+					                            absolutePath[k]='\0';
+					                
+					                            printf("[create_file]pwd:%s fname=%s\n",target,&absolutePath[k+1]);
+					                            int ret=create_file(target,&absolutePath[k+1]);
+					                            printf("[create_file]ret:%d\n",ret);
+					                
+					                            break;
+				                            }
+				                            else if(absolutePath[k]=='/'&&k==0){//已經切到root目錄了
+				    	                        absolutePath[k]='\0';
+				    	            
+				    	                        printf("[create_file]pwd:%s fname=%s\n",target,&absolutePath[k+1]);
+				    	                        int ret=create_file(target,&absolutePath[k+1]);
+				    	                        printf("[create_file]ret:%d\n",ret);
+				    	            
+					                            break;
+					                       }
+				
+		    	                       }
+									}
+								    else{
+										printf("[create_file]pwd:%s fname=%s\n",target,tempName);
+				    	                int ret=create_file(target,tempName);
+				    	                printf("[create_file]ret:%d\n",ret);
+									}
+									
+									char writePath[100];
+								    strcpy(writePath,target);
+								    strcat(writePath,"/");
+								    strcat(writePath,tempName);
+								    
+								    printf("[write_file_by_path]path:%s buf=%s size=%d\n",writePath,(char*)buf,len);
+									int ret=write_file_by_path(writePath,(char*)buf,len);
 									printf("[write_file_by_path]ret:%d\n",ret);
+								    
 								}
 							}
 							
@@ -778,7 +838,7 @@ int main(){
 					                
 					                printf("[rename_file]pwd:%s f1=%s f2=%s\n",absolutePath,&absolutePath[k+1],argv[i+1]);
 					                int ret=rename_file(absolutePath,&absolutePath[k+1],argv[i+1]);
-					                printf("[rename_file]ret:%d",ret);
+					                printf("[rename_file]ret:%d\n",ret);
 					                
 					                break;
 				                }
@@ -787,7 +847,7 @@ int main(){
 				    	            
 				    	            printf("[rename_file]pwd:%s f1=%s f2=%s\n","/",&absolutePath[k+1],argv[i+1]);
 				    	            int ret=rename_file("/",&absolutePath[k+1],argv[i+1]);
-				    	            printf("[rename_file]ret:%d",ret);
+				    	            printf("[rename_file]ret:%d\n",ret);
 				    	            
 					                break;
 					            }
@@ -885,7 +945,7 @@ int main(){
 					                
 					                printf("[dir_rename]pwd:%s f1=%s f2=%s\n",absolutePath,&absolutePath[k+1],argv[i+1]);
 					                int ret=dir_rename(absolutePath,&absolutePath[k+1],argv[i+1]);
-					                printf("[dir_rename]ret:%d",ret);
+					                printf("[dir_rename]ret:%d\n",ret);
 					                
 					                break;
 				                }
@@ -894,7 +954,7 @@ int main(){
 				    	            
 				    	            printf("[dir_rename]pwd:%s f1=%s f2=%s\n","/",&absolutePath[k+1],argv[i+1]);
 				    	            int ret=dir_rename("/",&absolutePath[k+1],argv[i+1]);
-				    	            printf("[dir_rename]ret:%d",ret);
+				    	            printf("[dir_rename]ret:%d\n",ret);
 					                break;
 					            }
 				
