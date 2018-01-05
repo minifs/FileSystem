@@ -250,8 +250,9 @@ int dir_create(const char *pwd, const char *foldername)
                 node[i]->name_len = cfilenamelen;
                 node[i]->file_type = 2;
                 node[i]->filesize = st.st_size;
-                node[i]->inode_id = create_inode(node[i]);
-                if (node[i]->inode_id != 0) {
+                int is_create_inode;
+                is_create_inode = create_inode(node[i]);
+                if (is_create_inode == 0) {
                     LOG_DEBUG("Create a foldername = %s\t, folder type is %d\t ", node[i]->filename, node[i]->file_type);
                     is_created = true;
                     if (is_created == true) {
