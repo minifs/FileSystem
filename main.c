@@ -13,9 +13,16 @@ char PATH[100];
 char tempPATH[100];
 
 int initial_Filesystem(){
-	if(load_filesystem("mini-FileSystem")<=-1)
-	    return create_filesystem("mini-FileSystem");
-    strcpy(PATH,dir_init());
+	
+	if(load_filesystem("mini-FileSystem")<=-1){
+		int ret=create_filesystem("mini-FileSystem");
+		if(ret<0)
+		    return ret;
+		strcpy(PATH,dir_init());
+		return 0;
+	}
+	strcpy(PATH,dir_init());    
+    
 	//strcpy(PATH,"/dir2/dor3");
     return 0; 
 
