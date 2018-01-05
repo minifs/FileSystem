@@ -131,7 +131,7 @@ int search_empty(void)
     //return an empty inode index to put new inode
     int i;
     for(i=0; i<INODE_SIZE; i++) {
-        inode_entry* node = Inode_Entry(i);
+        inode* node = Inode_Entry(i);
 
         if(node->inode_id == -1) {
             return i;
