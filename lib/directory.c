@@ -32,7 +32,9 @@ inode* Inode_Entry(int i)
  */
 char* dir_init()
 {
-    LOG_DEBUG("init_pwd");
+    init_superblock();
+    memset(inode_entries, '\0', sizeof(inode_entries));
+    LOG_DEBUG("init_pwd\n");
     char *init_pwd;
     int result;
     short i;
@@ -44,6 +46,7 @@ char* dir_init()
         inode* tmp = (inode*)malloc(sizeof(inode));
         tmp->inode_id = i;
 
+        memset(tmp, '\0', sizeof(tmp));
         result = query_inode(tmp);
         if ( result < 0 )
             tmp->inode_id = -1; // empty inode
@@ -60,8 +63,7 @@ char* dir_init()
         inode_entries[0]->inode_id = create_inode(inode_entries[0]);
     }
     init_pwd = Inode_Entry(0)->filename;
-    LOG_DEBUG("init_pwd");
-    LOG_DEBUG("%s", inode_entries[0]->filename);
+    LOG_DEBUG("init_pwd, inode_entries_0_filename: %s\n", inode_entries[0]->filename);
     return init_pwd;
 }
 
@@ -188,7 +190,7 @@ int dir_search(const char *pwd, const char *foldername)
             node[i] = Inode_Entry(i);
             if (strcmp(pwd, node[i]->filename) == 0 && node[i]->file_type == 2) {
                 is_folder = true;
-                LOG_DEBUG("Finding foldername = %s\t, folder type is %d\t ", foldername, node[i]->file_type);
+                LOG_DEBUG("Finding foldername = %s\t, folder type is %d\n", foldername, node[i]->file_type);
             }
         }
     }
@@ -253,7 +255,7 @@ int dir_create(const char *pwd, const char *foldername)
                 int is_create_inode;
                 is_create_inode = create_inode(node[i]);
                 if (is_create_inode == 0) {
-                    LOG_DEBUG("Create a foldername = %s\t, folder type is %d\t ", node[i]->filename, node[i]->file_type);
+                    LOG_DEBUG("Create a foldername = %s\t, folder type is %d\n", node[i]->filename, node[i]->file_type);
                     is_created = true;
                     if (is_created == true) {
                         return 0;
@@ -324,13 +326,13 @@ int dir_rename(const char *pwd, const char *foldername, const char *newname)
                 node[i]->name_len = strlen(str) + strlen(val);
                 /*call update_inode*/
                 result = update_inode(node[i]);
-                LOG_DEBUG("update_inode return value in dir_rename: %d", result);
+                LOG_DEBUG("update_inode return value in dir_rename: %d\n", result);
             } else {
                 strcpy(node[i]->filename, str);
                 node[i]->name_len = strlen(str);
                 /*call update_inode*/
                 result = update_inode(node[i]);
-                LOG_DEBUG("update_inode return value in dir_rename: %d", result);
+                LOG_DEBUG("update_inode return value in dir_rename: %d\n", result);
             }
 
 
@@ -395,7 +397,7 @@ int dir_delete(const char *pwd, const char *foldername)
                     /*call delete_inode*/
                     int result;
                     result = delete_inode(node);
-                    LOG_DEBUG("delete_inode return value in dir_delete: %d", result);
+                    LOG_DEBUG("delete_inode return value in dir_delete: %d\n", result);
                     return 0;
                 }
             }
