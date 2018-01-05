@@ -16,7 +16,7 @@ int init_superblock()
     memset (&superblock_inode, 0,  sizeof(superblock_inode));
     // load superblock_2(block 1) from disk
     read_block(SUPERBLOCK_2_ID, &superblock_inode);
-
+    dump_inode_bitmap();
     return 0;
 }
 
@@ -126,19 +126,19 @@ int query_inode (inode *inode_entry)
 
     // check if inode exist in bitmap
     if(!query_inode_bitmap(inode_entry->inode_id)) {
-        LOG_ERROR("inode_id:%d doesn't exist in inode bitmap\n", inode_entry->inode_id);
+        // LOG_ERROR("inode_id:%d doesn't exist in inode bitmap\n", inode_entry->inode_id);
         return -1;
     }
 
     read_block(inode_block_id, &inode_group);
 
-    LOG_DEBUG ("Load inode id:%d from disk", inode_entry->inode_id);
+    LOG_DEBUG ("Load inode id:%d from disk\n", inode_entry->inode_id);
 
     if(inode_entry->inode_id == inode_group.inode_list[inode_block_seq].inode_id) {
-        LOG_DEBUG ("Copy inode to memory");
+        LOG_DEBUG ("Copy inode to memory\n");
         *inode_entry = inode_group.inode_list[inode_block_seq];
     } else {
-        LOG_ERROR("inode_id in disk DOESN'T MATCH inode_id you requested !!!");
+        LOG_ERROR("inode_id in disk DOESN'T MATCH inode_id you requested !!!\n");
         return -1;
     }
 
@@ -178,13 +178,14 @@ int create_inode (inode *inode_entry)
     inode_entry->timestamp = time(NULL);
     for(i = 0; i < 14; i++)
     {
-        inode_entry->num[i];
+        inode_entry->num[i] = 0;
     }
     
     // assign inode_id and set bitmap up
+    i = 0;
     while (1) {
         if (query_inode_bitmap(i) == 0) {
-            LOG_DEBUG("Assign inode id: %d\n", i);
+            LOG_DEBUG("Assign inode id: %d. Filename: %s\n", i, inode_entry->filename);
             target_id = i;
             set_inode_bitmap(target_id);
             inode_entry->inode_id = target_id;
@@ -195,7 +196,7 @@ int create_inode (inode *inode_entry)
         }
 
         if (i >= INODE_NUM) {
-            LOG_ERROR("NO inode available anymore !!");
+            LOG_ERROR("NO inode available anymore !!\n");
             return -1;
             break;
         }
@@ -215,7 +216,7 @@ int delete_inode (inode *inode_entry)
 {
     // clear inode id bitmap
     clear_inode_bitmap(inode_entry->inode_id);
-    LOG_DEBUG("inode bitmap clear. Remember to release the struct memory.");
+    LOG_DEBUG("inode bitmap clear. Remember to release the struct memory.\n");
     // return
     return 0;
 }
@@ -234,9 +235,9 @@ int delete_file (inode *inode_entry)
 
     // load indirect block_num
     if(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ - 1] != 0) {
-        LOG_DEBUG("indirect blocks exist. load them !");
+        LOG_DEBUG("indirect blocks exist. load them !\n");
         read_block_return = read_block(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ - 1], (void *)&single_indirect_block);
-        LOG_DEBUG("read block result: %d", read_block_return);
+        LOG_DEBUG("read block result: %d\n", read_block_return);
     }
 
     //// find block_inuse (comment because it's actually no use)
@@ -247,10 +248,10 @@ int delete_file (inode *inode_entry)
     // direct block. Clear until meet block_id == 0
     for (i = 0; i < SINGLE_INDIRECT_BLOCK_SEQ; i++) {
         if (inode_entry->num[i] != 0) {
-            LOG_DEBUG("Delete direct block id: %d", inode_entry->num[i]);
+            LOG_DEBUG("Delete direct block id: %d\n", inode_entry->num[i]);
             delete_block(inode_entry->num[i]);
         } else {
-            LOG_DEBUG("All direct Block Clear. Total %d blocks", i+1);
+            LOG_DEBUG("All direct Block Clear. Total %d blocks\n", i+1);
             break;
         }
     }
@@ -259,10 +260,10 @@ int delete_file (inode *inode_entry)
     if(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ - 1] != 0) {
         for (i = 0; i < BLOCK_SIZE / 8; i++) {
             if (single_indirect_block.num12[i] != 0) {
-                LOG_DEBUG("Delete indirect block id: %d", single_indirect_block.num12[i]);
+                LOG_DEBUG("Delete indirect block id: %d\n", single_indirect_block.num12[i]);
                 delete_block(single_indirect_block.num12[i]);
             } else {
-                LOG_DEBUG("All indirect Block Clear. Total %d blocks", i+1);
+                LOG_DEBUG("All indirect Block Clear. Total %d blocks\n", i+1);
                 break;
             }
         }
@@ -286,7 +287,7 @@ int read_file (inode *inode_entry, void* file)
 
     // load indirect block_num
     if(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ - 1] != 0) {
-        LOG_DEBUG("indirect blocks exist. load them !");
+        LOG_DEBUG("indirect blocks exist. load them !\n");
         read_block_return = read_block(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ - 1], (void *)&single_indirect_block);
         //LOG_DEBUG("read block result: %d", read_block_return);
     }
