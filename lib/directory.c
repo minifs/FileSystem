@@ -89,7 +89,7 @@ int delete_inode_from_table(inode* node)
     return -1;
 }
 
-inode* get_inode_from_path(char *path)
+inode* get_inode_from_path(const char *path)
 {
     int i;
     for(i=0; i<INODE_SIZE; i++) {
