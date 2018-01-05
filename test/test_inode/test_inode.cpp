@@ -3,9 +3,15 @@
 
 int main ()
 {
+    create_filesystem("./filesystem.txt");
+
     init_superblock();
-    dump_inode_bitmap();
+    //dump_inode_bitmap();
     
+    char test_file[100] = "The quick brown fox jumps over the lazy dog\0";
+    char read_file_buf[200] ;
+
+    memset(read_file_buf, 0, 200);
 
     /*
     // ------ bitmap test ------
@@ -41,18 +47,26 @@ int main ()
     // ------ create inode test ------
     printf("------ create inode test ------\n");
     inode_entry test_inode_entry_1;
+    init_inode(&test_inode_entry_1, sizeof(test_inode_entry_1));
     create_inode(&test_inode_entry_1);
+    dump_inode(&test_inode_entry_1);
 
-    inode_entry test_inode_entry_2;
-    create_inode(&test_inode_entry_2);
+    // inode_entry test_inode_entry_2;
+    // create_inode(&test_inode_entry_2);
 
-    printf("------------------------\n\n");
+    // printf("------------------------\n\n");
 
     // ------ delete inode test ------
-    printf("------ delete inode test ------\n");
+    // printf("------ delete inode test ------\n");
+    // printf("------------------------\n\n");
 
-    
+    // ------ Write Test ------
+    test_inode_entry_1.filesize = int(sizeof(test_file));
+    write_file(&test_inode_entry_1, test_file);
+    dump_inode(&test_inode_entry_1);
 
-    printf("------------------------\n\n");
+    read_file(&test_inode_entry_1, (void *)read_file_buf);
+    printf("read result: %s\n", read_file_buf);
 
+    return 0;
 }

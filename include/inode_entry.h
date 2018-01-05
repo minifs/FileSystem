@@ -70,6 +70,8 @@ int query_inode_bitmap (int id);
 
 int dump_inode_bitmap ();
 
+int dump_inode (inode *inode_entry);
+
 /*
  * Inode Function prototypes(External)
  */
