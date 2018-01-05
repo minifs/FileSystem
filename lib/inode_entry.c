@@ -16,11 +16,13 @@ int init_superblock()
     memset (&superblock_inode, 0,  sizeof(superblock_inode));
     // load superblock_2(block 1) from disk
     read_block(SUPERBLOCK_2_ID, &superblock_inode);
+
+    return 0;
 }
 
 int init_inode(inode *inode_entry, size_t length)
 {
-    memset (&inode_entry, 0, length);
+    memset (inode_entry, 0, length);
     return 0;
 }
 
