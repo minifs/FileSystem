@@ -363,7 +363,7 @@ int read_block(const int block_ID, void *block)
             return -4;
         }
 
-        //memcpy(block, tmp, BLOCK_SIZE);
+        memcpy(block, tmp, BLOCK_SIZE);
 
         close(file_state);
     } else {

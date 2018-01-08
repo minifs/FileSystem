@@ -17,7 +17,8 @@ int read_file_by_path(const char *path, void **buf)
         return -1;
     }
 
-    int file_size = file_inode->filesize;
+    // add one byte for '\0'
+    int file_size = file_inode->filesize + 1;
     void *read_buf = (void*)malloc( file_size );
     int ret = read_file ( file_inode, read_buf );
 

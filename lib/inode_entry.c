@@ -16,6 +16,7 @@ int init_superblock()
     memset (&superblock_inode, 0,  sizeof(superblock_inode));
     // load superblock_2(block 1) from disk
     read_block(SUPERBLOCK_2_ID, &superblock_inode);
+    dump_inode_bitmap();
     return 0;
 }
 
@@ -84,7 +85,7 @@ int dump_inode (inode *inode_entry)
 {
     int i;
 
-    printf("------ Dump inode_enry ------\n");
+    printf("------ Dump inode_entry ------\n");
     printf("inode_id: %d\n", inode_entry->inode_id);
     printf("filesize: %d\n", inode_entry->filesize);
     printf("uid: %d\n", inode_entry->uid);
@@ -128,17 +129,23 @@ int query_inode (inode *inode_entry)
     // return
 
     // get block id
-    int inode_block_id = inode_entry->inode_id / (BLOCK_SIZE / INODE_SIZE) + 1;
+    int inode_block_id = inode_entry->inode_id / (BLOCK_SIZE / INODE_SIZE) + 2;
 
     // get the seq in inode_group (0~7)
     int inode_block_seq = inode_entry->inode_id % (BLOCK_SIZE / INODE_SIZE);
 
     inode_group inode_group;
+    //memset((void*)inode_group, 0, sizeof(inode_group));
 
     // check if inode exist in bitmap
     if(!query_inode_bitmap(inode_entry->inode_id)) {
         // LOG_ERROR("inode_id:%d doesn't exist in inode bitmap\n", inode_entry->inode_id);
         return -1;
+    }
+    else
+    {
+        LOG_DEBUG("inode_id:%d HIT !!!\n", inode_entry->inode_id);
+        
     }
 
     read_block(inode_block_id, &inode_group);
@@ -147,31 +154,32 @@ int query_inode (inode *inode_entry)
 
     if(inode_entry->inode_id == inode_group.inode_list[inode_block_seq].inode_id) {
         LOG_DEBUG ("Copy inode to memory\n");
-        *inode_entry = inode_group.inode_list[inode_block_seq];
+        memcpy(inode_entry, &inode_group.inode_list[inode_block_seq], sizeof(inode));
+        //inode_entry = &inode_group.inode_list[inode_block_seq];
     } else {
         LOG_ERROR("inode_id in disk DOESN'T MATCH inode_id you requested !!!\n");
         return -1;
     }
+
+    // dump_inode(inode_entry);
 
     return 0;
 }
 
 int update_inode (inode *inode_entry)
 {
+    
     int ret;
 
     // get block id
     int inode_block_id = inode_entry->inode_id / (BLOCK_SIZE / INODE_SIZE) + 2;
-    LOG_DEBUG("1. inode_block_id: %d, inode_id: %d\n", inode_block_id, inode_entry->inode_id);
 
     // get the seq in inode_group (0~7)
     int inode_block_seq = inode_entry->inode_id % (BLOCK_SIZE / INODE_SIZE);
 
     inode_group inode_group;
-    LOG_DEBUG("2. inode_block_id: %d, inode_id: %d\n", inode_block_id, inode_entry->inode_id);
     // load whole inode_block
     read_block (inode_block_id, (void *)&inode_group);
-    LOG_DEBUG("3. inode_block_id: %d, inode_id: %d\n", inode_block_id, inode_entry->inode_id);
     // memory copy to right place
     inode_group.inode_list[inode_block_seq] = *inode_entry;
 
@@ -191,6 +199,7 @@ int update_inode (inode *inode_entry)
 
 int create_inode (inode *inode_entry)
 {
+
     int i = 0;
     int target_id;
     int block_ret;
@@ -211,7 +220,7 @@ int create_inode (inode *inode_entry)
             target_id = i;
             set_inode_bitmap(target_id);
             inode_entry->inode_id = target_id;
-            // dump_inode_bitmap();
+            dump_inode_bitmap();
             break;
         } else {
             i++;
@@ -324,8 +333,6 @@ int read_file (inode *inode_entry, void* file)
         // load block
         read_block(next_block_id, file_buffer);
 
-        dump_block(inode_entry->num[i], file_buffer, BLOCK_SIZE);
-
         // load next block
         if(i+1 < SINGLE_INDIRECT_BLOCK_SEQ) {
             next_block_id = inode_entry->num[i+1];
@@ -344,9 +351,16 @@ int read_file (inode *inode_entry, void* file)
 
             // clear buffer with zero
             memset(file_buffer, 0, sizeof(file_buffer));
+
+            // upper layer will treat as string, so we need to append '\0' Orz
+            file_buffer[0] = '\0';
+            memmove(file + inode_entry->filesize, &file_buffer[0], 1 );
+
+            // clear buffer with zero
+            memset(file_buffer, 0, sizeof(file_buffer));
         }
 
-        if((i+1) * BLOCK_SIZE > inode_entry->filesize) {
+        if((i+1) * BLOCK_SIZE > inode_entry->filesize / BLOCK_SIZE + 1) {
             LOG_WARN("loaded file is LARGER then filesize\n");
         }
 
@@ -356,6 +370,9 @@ int read_file (inode *inode_entry, void* file)
 
     }
     LOG_DEBUG("Load block num: %d, File Size: %d\n", i, inode_entry->filesize);
+    
+    
+    
 
     // return
     return 0;
@@ -371,6 +388,8 @@ int write_file (inode *inode_entry, void* file)
     char file_buffer[BLOCK_SIZE];
     int block_id_buf;
     int block_data_len;
+
+    LOG_DEBUG("Let's Write file with filesize: %d\n", inode_entry->filesize);
 
     // load indirect block_num
     if(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] != 0) {
@@ -443,9 +462,14 @@ int write_file (inode *inode_entry, void* file)
         if(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] != 0) {
             modify_block(inode_entry->num[12], &single_indirect_block, (int)(sizeof(single_indirect_block)));
         } else {
-            write_block(&block_id_buf, &single_indirect_block, (int)(sizeof(single_indirect_block)));
-            inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] = block_id_buf;
+            if(inode_entry->filesize / BLOCK_SIZE >= SINGLE_INDIRECT_BLOCK_SEQ)
+            {
+                write_block(&block_id_buf, &single_indirect_block, (int)(sizeof(single_indirect_block)));
+                inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] = block_id_buf;
+            }
         }
+
+
     } else if(block_inuse > inode_entry->filesize / BLOCK_SIZE + 1) {	// block num will decrease
         // delete blocks will not use and update block list in inode
         for(i = block_inuse - (inode_entry->filesize / BLOCK_SIZE + 1); i < block_inuse; i++ ) {
@@ -490,11 +514,13 @@ int write_file (inode *inode_entry, void* file)
                 inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] = block_id_buf;
             }
         }
+
+
     } else if(block_inuse == inode_entry->filesize / BLOCK_SIZE + 1) {	// block num will remind
         // modify blocks
         for(i = 0; i < inode_entry->filesize / BLOCK_SIZE + 1; i++) {
             // determine the length of block and copy block into buffer
-            if(i == inode_entry->filesize / BLOCK_SIZE + 1) { // last block of file
+            if(i+1 == inode_entry->filesize / BLOCK_SIZE + 1) { // last block of file
                 block_data_len = inode_entry->filesize % BLOCK_SIZE;
             } else {
                 block_data_len = BLOCK_SIZE;
