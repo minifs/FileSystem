@@ -102,6 +102,18 @@ int dump_inode (inode *inode_entry)
     return 0;
 }
 
+int dump_block (int block_id, void *address, size_t len)
+{
+    int i;
+    printf("NO.%d block is :", block_id);
+    for(i = 0; i < len; i++)
+    {
+        char *c_buf = (char*)address+i;
+        printf("%c", *c_buf);
+    }
+    printf("\n");
+}
+
 
 /*
  * inode extrnal operation
@@ -172,7 +184,7 @@ int update_inode (inode *inode_entry)
 
     LOG_DEBUG("Return: %d\n", ret);
 
-    dump_inode(inode_entry);
+    // dump_inode(inode_entry);
 
     return 0;
 }
@@ -199,7 +211,7 @@ int create_inode (inode *inode_entry)
             target_id = i;
             set_inode_bitmap(target_id);
             inode_entry->inode_id = target_id;
-            dump_inode_bitmap();
+            // dump_inode_bitmap();
             break;
         } else {
             i++;
@@ -393,8 +405,10 @@ int write_file (inode *inode_entry, void* file)
         for(i = 0; i < block_inuse; i++) {
             memcpy(file_buffer, file + i*BLOCK_SIZE, BLOCK_SIZE);
             if(i < SINGLE_INDIRECT_BLOCK_SEQ) { //direct block
+                dump_block(inode_entry->num[i], (void *)&file_buffer, BLOCK_SIZE);
                 modify_block(inode_entry->num[i], &file_buffer, BLOCK_SIZE);
             } else { //indirect block
+                dump_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], (void *)&file_buffer, BLOCK_SIZE);
                 modify_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], &file_buffer, BLOCK_SIZE);
             }
         }
@@ -411,6 +425,8 @@ int write_file (inode *inode_entry, void* file)
             }
 
             memcpy(file_buffer,file + i*BLOCK_SIZE, block_data_len);
+
+            dump_block(block_id_buf, (void *)&file_buffer, block_data_len);
             write_block(&block_id_buf, &file_buffer, block_data_len);
 
             // direct or indirect block
@@ -452,8 +468,10 @@ int write_file (inode *inode_entry, void* file)
 
             memcpy(file_buffer, file + i*BLOCK_SIZE, block_data_len);
             if(i < SINGLE_INDIRECT_BLOCK_SEQ) { //direct block
+                dump_block(inode_entry->num[i], (void *)&file_buffer, block_data_len);
                 modify_block(inode_entry->num[i], &file_buffer, block_data_len);
             } else { //indirect block
+                dump_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], (void *)&file_buffer, block_data_len);
                 modify_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], &file_buffer, block_data_len);
             }
         }
@@ -483,8 +501,10 @@ int write_file (inode *inode_entry, void* file)
             memcpy(file_buffer, file + i*BLOCK_SIZE, block_data_len);
 
             if(i < SINGLE_INDIRECT_BLOCK_SEQ) { //direct block
+                dump_block(inode_entry->num[i], (void *)&file_buffer, block_data_len);
                 modify_block(inode_entry->num[i], &file_buffer, block_data_len);
             } else { //indirect block
+                dump_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], (void *)&file_buffer, block_data_len);
                 modify_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], &file_buffer, block_data_len);
             }
         }

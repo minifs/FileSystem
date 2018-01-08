@@ -73,6 +73,8 @@ int dump_inode_bitmap ();
 
 int dump_inode (inode *inode_entry);
 
+int dump_block (int block_id, void *address, size_t len);
+
 /*
  * Inode Function prototypes(External)
  */
