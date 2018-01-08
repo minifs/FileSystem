@@ -1,5 +1,5 @@
-# Mini Filesystem(minifs) - team 8  
-[![Build Status](https://api.travis-ci.org/sufuf3/FileSystem.svg?branch=travis)](https://travis-ci.com/sufuf3/FileSystem/)  
+# Mini Filesystem(minifs) - team 7 @ NCTU-OS  
+[![Build Status](https://api.travis-ci.org/minifs/FileSystem.svg?branch=travis)](https://travis-ci.org/minifs/FileSystem/)  
 Mini Filesystem is a easy way to simply implement filesystem on Linux OS.
 This is the ext2 deformation.
 
