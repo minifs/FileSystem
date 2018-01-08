@@ -105,7 +105,7 @@ int dump_inode (inode *inode_entry)
 int dump_block (int block_id, void *address, size_t len)
 {
     int i;
-    printf("NO.%d block is :", block_id);
+    printf("NO.%d block, Length %d :\n", block_id, len);
     for(i = 0; i < len; i++)
     {
         char *c_buf = (char*)address+i;
@@ -184,7 +184,7 @@ int update_inode (inode *inode_entry)
 
     LOG_DEBUG("Return: %d\n", ret);
 
-    // dump_inode(inode_entry);
+    dump_inode(inode_entry);
 
     return 0;
 }
@@ -322,7 +322,9 @@ int read_file (inode *inode_entry, void* file)
 
     while(next_block_id != 0) {
         // load block
-        read_block(next_block_id, &file_buffer);
+        read_block(next_block_id, file_buffer);
+
+        dump_block(inode_entry->num[i], file_buffer, BLOCK_SIZE);
 
         // load next block
         if(i+1 < SINGLE_INDIRECT_BLOCK_SEQ) {
@@ -369,7 +371,6 @@ int write_file (inode *inode_entry, void* file)
     char file_buffer[BLOCK_SIZE];
     int block_id_buf;
     int block_data_len;
-
 
     // load indirect block_num
     if(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] != 0) {
@@ -418,16 +419,17 @@ int write_file (inode *inode_entry, void* file)
 
         for(; i < inode_entry->filesize / BLOCK_SIZE + 1; i++) {
             // determine the length of block and copy block into buffer
-            if(i == inode_entry->filesize / BLOCK_SIZE + 1) { // last block of file
+            if(i+1 == inode_entry->filesize / BLOCK_SIZE + 1) { // last block of file
                 block_data_len = inode_entry->filesize % BLOCK_SIZE;
+                //LOG_DEBUG("Block_num increase - Write Blocks. filesize is %d. block_data_len is %d", inode_entry->filesize, block_data_len);
             } else {
                 block_data_len = BLOCK_SIZE;
             }
 
             memcpy(file_buffer,file + i*BLOCK_SIZE, block_data_len);
 
-            dump_block(block_id_buf, (void *)&file_buffer, block_data_len);
             write_block(&block_id_buf, &file_buffer, block_data_len);
+            dump_block(block_id_buf, (void *)&file_buffer, block_data_len);
 
             // direct or indirect block
             if(i < SINGLE_INDIRECT_BLOCK_SEQ) {
