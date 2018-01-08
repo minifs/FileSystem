@@ -158,7 +158,7 @@ int update_inode (inode *inode_entry)
     inode_group inode_group;
     LOG_DEBUG("2. inode_block_id: %d, inode_id: %d\n", inode_block_id, inode_entry->inode_id);
     // load whole inode_block
-    read_block (inode_block_id, &inode_group);
+    read_block (inode_block_id, (void *)&inode_group);
     LOG_DEBUG("3. inode_block_id: %d, inode_id: %d\n", inode_block_id, inode_entry->inode_id);
     // memory copy to right place
     inode_group.inode_list[inode_block_seq] = *inode_entry;

@@ -100,18 +100,20 @@ int create_filesystem(const char *path)
             return -2;
         }
 
-//	uint8_t tmp[BLOCK_SIZE] = {0};
         long i;
+	uint8_t zero = 0;
+        for(i = 0; i < TOTAL_NUMBER_OF_BYTES; i++){
+        	if(write(file_state,(void *)&zero, sizeof(zero)) != 1){
+			LOG_WARN("Fail to initial filesystem at i = %li\n", i);
+			break;
+		}
+        }
+	LOG_DEBUG("Write %li bytes\n", i);
 
-        //LOG_DEBUG("TOTAL_NUMBER_OF_BYTES = %d\n", TOTAL_NUMBER_OF_BYTES);
-        //for(i = 0; i < 10; i++){
-        //	write(file_state, tmp, BLOCK_SIZE);
-        //}
-
-//	if(lseek(file_state, 0, SEEK_SET) < 0){//set cursor to initial point
-//		LOG_WARN("Fail to move to start point\n");
-//		return -3;
-//	}
+	if(lseek(file_state, 0, SEEK_SET) < 0){//set cursor to initial point
+		LOG_WARN("Fail to move to start point\n");
+		return -3;
+	}
 
         write(file_state, FILE_SYSTEM_HEADER, strlen(FILE_SYSTEM_HEADER));
         snprintf(file_system_path, 100, "%s", path);
@@ -361,7 +363,7 @@ int read_block(const int block_ID, void *block)
             return -4;
         }
 
-        memcpy(block, tmp, BLOCK_SIZE);
+        //memcpy(block, tmp, BLOCK_SIZE);
 
         close(file_state);
     } else {
