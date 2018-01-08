@@ -102,12 +102,18 @@ int create_filesystem(const char *path)
 
         long i;
 	uint8_t zero = 0;
+	printf("Creating file system.....\n");
+	printf("[");
         for(i = 0; i < TOTAL_NUMBER_OF_BYTES; i++){
+		if(i % 41943 == 0){
+		       printf("#");
+		}	       
         	if(write(file_state,(void *)&zero, sizeof(zero)) != 1){
 			LOG_WARN("Fail to initial filesystem at i = %li\n", i);
 			break;
 		}
         }
+	printf("]\n");
 	LOG_DEBUG("Write %li bytes\n", i);
 
 	if(lseek(file_state, 0, SEEK_SET) < 0){//set cursor to initial point
@@ -331,7 +337,7 @@ int write_block(int *block_ID, void *block, int block_input_length)
     } else {
         return -1;
     }
-
+    LOG_DEBUG("byte_written = %d\n", byte_written);
     return byte_written;
 }
 

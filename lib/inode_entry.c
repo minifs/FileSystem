@@ -15,7 +15,7 @@ int init_superblock()
 {
     memset (&superblock_inode, 0,  sizeof(superblock_inode));
     // load superblock_2(block 1) from disk
-    read_block(SUPERBLOCK_2_ID, &superblock_inode);
+    read_block(SUPERBLOCK_2_ID, (void *)&superblock_inode);
     return 0;
 }
 
@@ -35,7 +35,7 @@ int set_inode_bitmap (int id)
     superblock_inode.inode_map[id>>3] |= 1ULL << (id%BYTE_SIZE);
 
     // Save Superblock_2
-    modify_block(SUPERBLOCK_2_ID, &superblock_inode, (int)(sizeof (superblock_inode)));
+    modify_block(SUPERBLOCK_2_ID, (void *)&superblock_inode, (int)(sizeof (superblock_inode)));
 
     return 0;
 }
@@ -45,7 +45,7 @@ int clear_inode_bitmap (int id)
     superblock_inode.inode_map[id>>3] &= ~(1ULL << (id%BYTE_SIZE));
 
     // Save Superblock_2
-    modify_block(SUPERBLOCK_2_ID, &superblock_inode, (int)(sizeof (superblock_inode)));
+    modify_block(SUPERBLOCK_2_ID, (void *)&superblock_inode, (int)(sizeof (superblock_inode)));
 
     return 0;
 }
@@ -129,7 +129,7 @@ int query_inode (inode *inode_entry)
         return -1;
     }
 
-    read_block(inode_block_id, &inode_group);
+    read_block(inode_block_id, (void *)&inode_group);
 
     LOG_DEBUG ("Load inode id:%d from disk\n", inode_entry->inode_id);
 
@@ -167,7 +167,7 @@ int update_inode (inode *inode_entry)
 
 
     // write whole inode_block back
-    ret = modify_block( inode_block_id, &inode_group, (int)(sizeof(inode_group)) );
+    ret = modify_block( inode_block_id, (void *)&inode_group, (int)(sizeof(inode_group)) );
 
 
     LOG_DEBUG("Return: %d\n", ret);
@@ -213,7 +213,7 @@ int create_inode (inode *inode_entry)
     }
 
     // save superblock to disk
-    modify_block(SUPERBLOCK_2_ID, &superblock_inode, (int)(sizeof (superblock_inode)));
+    modify_block(SUPERBLOCK_2_ID, (void *)&superblock_inode, (int)(sizeof (superblock_inode)));
 
     // save inode to block, and write block
     update_inode(inode_entry);
@@ -393,9 +393,9 @@ int write_file (inode *inode_entry, void* file)
         for(i = 0; i < block_inuse; i++) {
             memcpy(file_buffer, file + i*BLOCK_SIZE, BLOCK_SIZE);
             if(i < SINGLE_INDIRECT_BLOCK_SEQ) { //direct block
-                modify_block(inode_entry->num[i], &file_buffer, BLOCK_SIZE);
+                modify_block(inode_entry->num[i], (void *)file_buffer, BLOCK_SIZE);
             } else { //indirect block
-                modify_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], &file_buffer, BLOCK_SIZE);
+                modify_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], (void *)file_buffer, BLOCK_SIZE);
             }
         }
 
@@ -411,7 +411,7 @@ int write_file (inode *inode_entry, void* file)
             }
 
             memcpy(file_buffer,file + i*BLOCK_SIZE, block_data_len);
-            write_block(&block_id_buf, &file_buffer, block_data_len);
+            write_block(&block_id_buf, (void *)file_buffer, block_data_len);
 
             // direct or indirect block
             if(i < SINGLE_INDIRECT_BLOCK_SEQ) {
@@ -423,9 +423,9 @@ int write_file (inode *inode_entry, void* file)
 
         // save indirect block map
         if(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] != 0) {
-            modify_block(inode_entry->num[12], &single_indirect_block, (int)(sizeof(single_indirect_block)));
+            modify_block(inode_entry->num[12], (void *)&single_indirect_block, (int)(sizeof(single_indirect_block)));
         } else {
-            write_block(&block_id_buf, &single_indirect_block, (int)(sizeof(single_indirect_block)));
+            write_block(&block_id_buf, (void *)&single_indirect_block, (int)(sizeof(single_indirect_block)));
             inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] = block_id_buf;
         }
     } else if(block_inuse > inode_entry->filesize / BLOCK_SIZE + 1) {	// block num will decrease
@@ -452,9 +452,9 @@ int write_file (inode *inode_entry, void* file)
 
             memcpy(file_buffer, file + i*BLOCK_SIZE, block_data_len);
             if(i < SINGLE_INDIRECT_BLOCK_SEQ) { //direct block
-                modify_block(inode_entry->num[i], &file_buffer, block_data_len);
+                modify_block(inode_entry->num[i], (void *)file_buffer, block_data_len);
             } else { //indirect block
-                modify_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], &file_buffer, block_data_len);
+                modify_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], (void *)file_buffer, block_data_len);
             }
         }
 
@@ -464,9 +464,9 @@ int write_file (inode *inode_entry, void* file)
             inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] = 0;
         } else { // save indirect block into disk
             if(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] != 0) { // there exist a indirect block
-                modify_block(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ], &single_indirect_block, (int)(sizeof(single_indirect_block)));
+                modify_block(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ], (void *)&single_indirect_block, (int)(sizeof(single_indirect_block)));
             } else { // there doesnt exist a indirect block
-                write_block(&block_id_buf, &single_indirect_block, (int)(sizeof(single_indirect_block)));
+                write_block(&block_id_buf, (void *)&single_indirect_block, (int)(sizeof(single_indirect_block)));
                 inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] = block_id_buf;
             }
         }
@@ -483,9 +483,9 @@ int write_file (inode *inode_entry, void* file)
             memcpy(file_buffer, file + i*BLOCK_SIZE, block_data_len);
 
             if(i < SINGLE_INDIRECT_BLOCK_SEQ) { //direct block
-                modify_block(inode_entry->num[i], &file_buffer, block_data_len);
+                modify_block(inode_entry->num[i], (void *)file_buffer, block_data_len);
             } else { //indirect block
-                modify_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], &file_buffer, block_data_len);
+                modify_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], (void *)file_buffer, block_data_len);
             }
         }
     }
