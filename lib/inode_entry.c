@@ -63,19 +63,20 @@ int query_inode_bitmap (int id)
 
 int dump_inode_bitmap ()
 {
-    // Show whole bitmap, show in OCT (not HEX)
+    // Show whole bitmap, show in HEX
     int i;
     for(i = 0; i < INODE_NUM / 8; i++) {
 
-        if(i%64 == 0) {
+        if(i%32 == 0) {
             printf("\n");
         } else {
-            if(i%8 == 0) {
+            if(i%2 == 0) {
                 printf(" ");
             }
         }
 
-        printf("%X", superblock_inode.inode_map[i]);
+        printf("%X", superblock_inode.inode_map[i]%16);
+        printf("%X", superblock_inode.inode_map[i]/16);
     }
     printf("\n");
 
