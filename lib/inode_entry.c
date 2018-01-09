@@ -192,7 +192,7 @@ int update_inode (inode *inode_entry)
 
     LOG_DEBUG("Return: %d\n", ret);
 
-    dump_inode(inode_entry);
+    //dump_inode(inode_entry);
 
     return 0;
 }
@@ -315,6 +315,13 @@ int read_file (inode *inode_entry, void* file)
     int read_block_return;
     int next_block_id;
     char file_buffer[BLOCK_SIZE];
+
+    if(inode_entry->filesize == 0)
+    {
+        file_buffer[0] = '\0';
+        memmove(file + inode_entry->filesize, &file_buffer[0], 1 );
+        return 0;
+    }
 
     // load indirect block_num
     if(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ - 1] != 0) {
