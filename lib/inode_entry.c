@@ -85,20 +85,20 @@ int dump_inode (inode *inode_entry)
 {
     int i;
 
-    printf("------ Dump inode_entry ------\n");
-    printf("inode_id: %d\n", inode_entry->inode_id);
-    printf("filesize: %d\n", inode_entry->filesize);
-    printf("uid: %d\n", inode_entry->uid);
-    printf("gid: %d\n", inode_entry->gid);
-    printf("filemode: %d\n", inode_entry->filemode);
-    printf("timestamp: %d\n", inode_entry->timestamp);
-    printf("file_type: %d\n", inode_entry->file_type);
-    printf("name_len: %d\n", inode_entry->name_len);
+    LOG_DEBUG("------ Dump inode_entry ------\n");
+    LOG_DEBUG("inode_id: %d\n", inode_entry->inode_id);
+    LOG_DEBUG("filesize: %d\n", inode_entry->filesize);
+    LOG_DEBUG("uid: %d\n", inode_entry->uid);
+    LOG_DEBUG("gid: %d\n", inode_entry->gid);
+    LOG_DEBUG("filemode: %d\n", inode_entry->filemode);
+    LOG_DEBUG("timestamp: %d\n", inode_entry->timestamp);
+    LOG_DEBUG("file_type: %d\n", inode_entry->file_type);
+    LOG_DEBUG("name_len: %d\n", inode_entry->name_len);
     for (i = 0; i < 15; i++) {
-        printf("num[%d]: %d\n", i, inode_entry->num[i]);
+        LOG_DEBUG("num[%d]: %d\n", i, inode_entry->num[i]);
     }
-    printf("filename: %s\n", inode_entry->filename);
-    printf("-----------------------------\n");
+    LOG_DEBUG("filename: %s\n", inode_entry->filename);
+    LOG_DEBUG("-----------------------------\n");
 
     return 0;
 }
@@ -428,10 +428,10 @@ int write_file (inode *inode_entry, void* file)
         for(i = 0; i < block_inuse; i++) {
             memcpy(file_buffer, file + i*BLOCK_SIZE, BLOCK_SIZE);
             if(i < SINGLE_INDIRECT_BLOCK_SEQ) { //direct block
-                dump_block(inode_entry->num[i], (void *)&file_buffer, BLOCK_SIZE);
+                // dump_block(inode_entry->num[i], (void *)&file_buffer, BLOCK_SIZE);
                 modify_block(inode_entry->num[i], &file_buffer, BLOCK_SIZE);
             } else { //indirect block
-                dump_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], (void *)&file_buffer, BLOCK_SIZE);
+                // dump_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], (void *)&file_buffer, BLOCK_SIZE);
                 modify_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], &file_buffer, BLOCK_SIZE);
             }
         }
@@ -451,7 +451,7 @@ int write_file (inode *inode_entry, void* file)
             memcpy(file_buffer,file + i*BLOCK_SIZE, block_data_len);
 
             write_block(&block_id_buf, &file_buffer, block_data_len);
-            dump_block(block_id_buf, (void *)&file_buffer, block_data_len);
+            // dump_block(block_id_buf, (void *)&file_buffer, block_data_len);
 
             // direct or indirect block
             if(i < SINGLE_INDIRECT_BLOCK_SEQ) {
@@ -496,10 +496,10 @@ int write_file (inode *inode_entry, void* file)
 
             memcpy(file_buffer, file + i*BLOCK_SIZE, block_data_len);
             if(i < SINGLE_INDIRECT_BLOCK_SEQ) { //direct block
-                dump_block(inode_entry->num[i], (void *)&file_buffer, block_data_len);
+                // dump_block(inode_entry->num[i], (void *)&file_buffer, block_data_len);
                 modify_block(inode_entry->num[i], &file_buffer, block_data_len);
             } else { //indirect block
-                dump_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], (void *)&file_buffer, block_data_len);
+                // dump_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], (void *)&file_buffer, block_data_len);
                 modify_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], &file_buffer, block_data_len);
             }
         }
@@ -531,10 +531,10 @@ int write_file (inode *inode_entry, void* file)
             memcpy(file_buffer, file + i*BLOCK_SIZE, block_data_len);
 
             if(i < SINGLE_INDIRECT_BLOCK_SEQ) { //direct block
-                dump_block(inode_entry->num[i], (void *)&file_buffer, block_data_len);
+                // dump_block(inode_entry->num[i], (void *)&file_buffer, block_data_len);
                 modify_block(inode_entry->num[i], &file_buffer, block_data_len);
             } else { //indirect block
-                dump_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], (void *)&file_buffer, block_data_len);
+                // dump_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], (void *)&file_buffer, block_data_len);
                 modify_block(single_indirect_block.num12[i - SINGLE_INDIRECT_BLOCK_SEQ], &file_buffer, block_data_len);
             }
         }
