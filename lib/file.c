@@ -17,7 +17,8 @@ int read_file_by_path(const char *path, void **buf)
         return -1;
     }
 
-    int file_size = file_inode->filesize;
+    // add one byte for '\0'
+    int file_size = file_inode->filesize + 1;
     void *read_buf = (void*)malloc( file_size );
     int ret = read_file ( file_inode, read_buf );
 
@@ -79,16 +80,19 @@ int write_file_by_path(const char *path, void *buf, int size)
     strncpy( (char*)write_buf, (const char*)buf, size );
     //printf("write:%s\n", (char*)write_buf);
 
+    // write_file needs filesize
+    time_t cur_time;
+    time (&cur_time);
+    file_inode->filesize = size;
+    file_inode->timestamp = cur_time;
+
     int ret = write_file ( file_inode, write_buf );
     if(ret<0) {
         return ret;
     }
 
-    time_t cur_time;
-    time (&cur_time);
-    file_inode->filesize = size;
-    file_inode->timestamp = cur_time;
-    update_inode ( file_inode );
+    // lower layer will save inode, save or not is OK
+    // update_inode ( file_inode );
 
     free( write_buf );
     return 0;
@@ -112,15 +116,16 @@ int delete_file_by_path(const char *path)
         return -2;
     }
 
-    int ret = delete_inode_from_table(file_inode);
-    if(ret<0) {
-        printf("fail:delete_inode_from_table(...).\n");
-        return -3;
-    }
-    ret = delete_file ( file_inode );
+    int ret = delete_file ( file_inode );
     if(ret<0) {
         printf("fail:delete_file(...).\n");
         return -4;
+    }
+
+    ret = delete_inode_from_table(file_inode);
+    if(ret<0) {
+        printf("fail:delete_inode_from_table(...).\n");
+        return -3;
     }
 
     return 0;

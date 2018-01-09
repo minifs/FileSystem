@@ -47,7 +47,7 @@ char* dir_init()
 
         memset(tmp, 0, sizeof(inode));
         if (i == 1) {
-            dump_inode(tmp);
+            // dump_inode(tmp);
         }
         tmp->inode_id = i;
         result = query_inode(tmp);

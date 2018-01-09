@@ -54,6 +54,23 @@ int update_super_block(int fd)
 }
 
 /*
+ * Load super block's block bitmap
+ * ONLY can be used by block.c functions !!
+ */
+int load_super_block(int fd)
+{
+    if(lseek(fd, strlen(FILE_SYSTEM_HEADER), SEEK_SET) < 0) {
+        LOG_WARN("lseek fail, detail: %s\n", strerror(errno));
+        return 0;
+    }
+    if(read(fd, block_map, NUMBER_OF_BLOCKS/SIZEOF_BYTE) != NUMBER_OF_BLOCKS/SIZEOF_BYTE) {
+        LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
+        return 0;
+    }
+    return 1;
+}
+
+/*
  * Assign block for user
  * 	return value >=1 : assign successfully
  * 	return value = 0 : no valid block
@@ -157,6 +174,13 @@ int load_filesystem(const char *path)
             }
         }
 
+        memset(block_map, 0, NUMBER_OF_BLOCKS/SIZEOF_BYTE);//clear the block map to all zero
+
+        load_super_block(file_state);
+        uint8_t i;
+        for(i = 64; i < 70; i++) {
+            LOG_DEBUG("Bitmap %d: %x\n", i, block_map[i]);
+        }
         snprintf(file_system_path, 100, "%s", path);
         close(file_state);
         return 0;
@@ -222,14 +246,18 @@ int read_super_block(void *block, int block_output_length)
 
         if(block_output_length < SUPER_BLOCK_SIZE) {
             LOG_DEBUG("block_input_length < BLOCK_SIZE\n");
-            if(read(file_state, block, block_output_length) != block_output_length) {
-                LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
-                return -4;
-            }
-            byte_read = block_output_length;
+
         }
+
+        if(read(file_state, block, block_output_length) != block_output_length) {
+            LOG_WARN("Fail to write, detail: %s\n", strerror(errno));
+            return -4;
+        }
+        byte_read = block_output_length;
+
         close(file_state);
     } else {
+        LOG_WARN("No valid file_state\n");
         return -1;
     }
 
@@ -363,7 +391,7 @@ int read_block(const int block_ID, void *block)
             return -4;
         }
 
-        //memcpy(block, tmp, BLOCK_SIZE);
+        memcpy(block, tmp, BLOCK_SIZE);
 
         close(file_state);
     } else {

@@ -6,6 +6,10 @@ int main ()
     create_filesystem("./filesystem.txt");
 
     init_superblock();
+
+    char test_string[20] = "MooTanO~~~";
+    int test_string_len = 10;
+
     //dump_inode_bitmap();
     
     //char test_file[100] = "The quick brown fox jumps over the lazy dog\0";
@@ -49,10 +53,11 @@ int main ()
     */
 
     // ------ create inode test ------
-    printf("------ create inode test ------\n");
-    inode_entry test_inode_entry_1;
-    init_inode(&test_inode_entry_1, sizeof(test_inode_entry_1));
-    create_inode(&test_inode_entry_1);
+    // printf("------ create inode test ------\n");
+    // inode_entry test_inode_entry_1;
+    // init_inode(&test_inode_entry_1, sizeof(test_inode_entry_1));
+    // test_inode_entry_1.filesize = 87;
+    // create_inode(&test_inode_entry_1);
     //dump_inode(&test_inode_entry_1);
 
     // inode_entry test_inode_entry_2;
@@ -64,6 +69,13 @@ int main ()
     // printf("------ delete inode test ------\n");
     // printf("------------------------\n\n");
 
+    // ------ query test ------
+    // printf("------ query test ------\n");
+    // inode_entry test_inode_entry_3;
+    // test_inode_entry_3.inode_id = 0;
+    // query_inode(&test_inode_entry_3);
+    // dump_inode(&test_inode_entry_3);
+
     // ------ Write Test ------
     // test_inode_entry_1.filesize = int(sizeof(test_bigfile));
     // write_file(&test_inode_entry_1, test_bigfile);
@@ -74,6 +86,9 @@ int main ()
 
     // delete_file(&test_inode_entry_1);
     // dump_inode_bitmap();
+
+    // ------ Test dump_block ------
+    // dump_block(87, test_string, test_string_len);
 
     return 0;
 }
