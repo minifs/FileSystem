@@ -116,15 +116,16 @@ int delete_file_by_path(const char *path)
         return -2;
     }
 
-    int ret = delete_inode_from_table(file_inode);
-    if(ret<0) {
-        printf("fail:delete_inode_from_table(...).\n");
-        return -3;
-    }
-    ret = delete_file ( file_inode );
+    int ret = delete_file ( file_inode );
     if(ret<0) {
         printf("fail:delete_file(...).\n");
         return -4;
+    }
+
+    ret = delete_inode_from_table(file_inode);
+    if(ret<0) {
+        printf("fail:delete_inode_from_table(...).\n");
+        return -3;
     }
 
     return 0;
