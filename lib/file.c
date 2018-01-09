@@ -79,7 +79,7 @@ int write_file_by_path(const char *path, void *buf, int size)
     void *write_buf = (void*)malloc( size );
     strncpy( (char*)write_buf, (const char*)buf, size );
     //printf("write:%s\n", (char*)write_buf);
-    
+
     // write_file needs filesize
     time_t cur_time;
     time (&cur_time);
@@ -90,7 +90,7 @@ int write_file_by_path(const char *path, void *buf, int size)
     if(ret<0) {
         return ret;
     }
-    
+
     // lower layer will save inode, save or not is OK
     // update_inode ( file_inode );
 

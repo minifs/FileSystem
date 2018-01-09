@@ -107,8 +107,7 @@ int dump_block (int block_id, void *address, size_t len)
 {
     int i;
     printf("NO.%d block, Length %d :\n", block_id, len);
-    for(i = 0; i < len; i++)
-    {
+    for(i = 0; i < len; i++) {
         char *c_buf = (char*)address+i;
         printf("%c", *c_buf);
     }
@@ -141,11 +140,9 @@ int query_inode (inode *inode_entry)
     if(!query_inode_bitmap(inode_entry->inode_id)) {
         // LOG_ERROR("inode_id:%d doesn't exist in inode bitmap\n", inode_entry->inode_id);
         return -1;
-    }
-    else
-    {
+    } else {
         LOG_DEBUG("inode_id:%d HIT !!!\n", inode_entry->inode_id);
-        
+
     }
 
     read_block(inode_block_id, &inode_group);
@@ -168,7 +165,7 @@ int query_inode (inode *inode_entry)
 
 int update_inode (inode *inode_entry)
 {
-    
+
     int ret;
 
     // get block id
@@ -316,8 +313,7 @@ int read_file (inode *inode_entry, void* file)
     int next_block_id;
     char file_buffer[BLOCK_SIZE];
 
-    if(inode_entry->filesize == 0)
-    {
+    if(inode_entry->filesize == 0) {
         file_buffer[0] = '\0';
         memmove(file + inode_entry->filesize, &file_buffer[0], 1 );
         return 0;
@@ -377,9 +373,9 @@ int read_file (inode *inode_entry, void* file)
 
     }
     LOG_DEBUG("Load block num: %d, File Size: %d\n", i, inode_entry->filesize);
-    
-    
-    
+
+
+
 
     // return
     return 0;
@@ -469,8 +465,7 @@ int write_file (inode *inode_entry, void* file)
         if(inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] != 0) {
             modify_block(inode_entry->num[12], &single_indirect_block, (int)(sizeof(single_indirect_block)));
         } else {
-            if(inode_entry->filesize / BLOCK_SIZE >= SINGLE_INDIRECT_BLOCK_SEQ)
-            {
+            if(inode_entry->filesize / BLOCK_SIZE >= SINGLE_INDIRECT_BLOCK_SEQ) {
                 write_block(&block_id_buf, &single_indirect_block, (int)(sizeof(single_indirect_block)));
                 inode_entry->num[SINGLE_INDIRECT_BLOCK_SEQ] = block_id_buf;
             }
