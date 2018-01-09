@@ -36,6 +36,7 @@ typedef struct inode_entry {
     short name_len;
     int num[15];
     char filename[32];
+    char empty[8]; //make size to 128byte
 } inode;
 
 
@@ -72,6 +73,8 @@ int query_inode_bitmap (int id);
 int dump_inode_bitmap ();
 
 int dump_inode (inode *inode_entry);
+
+int dump_block (int block_id, void *address, size_t len);
 
 /*
  * Inode Function prototypes(External)
