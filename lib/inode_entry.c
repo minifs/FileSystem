@@ -57,6 +57,7 @@ int query_inode_bitmap (int id)
 
     // load block, and only select the wanted bit
     target_bit = superblock_inode.inode_map[id>>3] >> ( id % 8 );
+    target_bit = target_bit % 2;
     return target_bit;
 }
 
@@ -244,7 +245,8 @@ int delete_inode (inode *inode_entry)
 {
     // clear inode id bitmap
     clear_inode_bitmap(inode_entry->inode_id);
-    LOG_DEBUG("inode bitmap clear. Remember to release the struct memory.\n");
+    LOG_DEBUG("inode %d bitmap clear. Remember to release the struct memory.\n", inode_entry->inode_id);
+    LOG_DEBUG("query_inode_bitmap(%d) = %d\n", inode_entry->inode_id, query_inode_bitmap(inode_entry->inode_id));
     // return
     return 0;
 }

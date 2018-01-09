@@ -400,14 +400,14 @@ int dir_delete(const char *pwd, const char *foldername)
                 if (strlen(list) > 0) {
                     return -1;
                 } else {
-                    sprintf(node->filename, "");
-                    node->name_len = 0;
-                    node->file_type = 0;
-                    node->inode_id = -1;
                     /*call delete_inode*/
                     int result;
                     result = delete_inode(node);
                     LOG_DEBUG("delete_inode return value in dir_delete: %d\n", result);
+                    sprintf(node->filename, "");
+                    node->name_len = 0;
+                    node->file_type = 0;
+                    node->inode_id = -1;
                     return 0;
                 }
             }
